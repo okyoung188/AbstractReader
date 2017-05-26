@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/AbstractReader/"
+	targetNamespace="http://www.example.org/AbstractReader/">
+	<!-- Root element -->
+	<element name="ReaderParams">
+		<complexType>
+			<sequence>
+				<element ref="tns:DataURLs"></element>
+				<element ref="tns:MapURL"></element>
+				<element ref="tns:SleepTimeOut"></element>
+				<element ref="tns:ConnectTimeOut"></element>
+				<element ref="tns:RetryTimeOut"></element>
+				<element ref="tns:TC_SEPARATE_SIGN"></element>
+				<element ref="tns:REVERSE_GEOCODING_FLAG"></element>
+				<element ref="tns:State"></element>
+				<element ref="tns:City"></element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<!-- Param Element -->
+	<element name="DataURLs">
+		<complexType>
+			<sequence minOccurs="1" maxOccurs="unbounded">
+				<element ref="tns:DataURL"></element>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="MapURL" type="anyURI"></element>
+	<element name="SleepTimeOut" type="integer"></element>
+	<element name="ConnectTimeOut" type="integer"></element>
+	<element name="RetryTimeOut" type="integer"></element>
+	<element name="TC_SEPARATE_SIGN" type="string"></element>
+	<element name="REVERSE_GEOCODING_FLAG" type="boolean"></element>
+	<element name="City" type="string"></element>
+	<element name="State" type="string"></element>
+	<element name="DataURL" type="anyURI"></element>
+	<element name="Citys">
+		<complexType>
+			<sequence minOccurs="1" maxOccurs="unbounded">
+				<element ref="tns:City"></element>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="States">
+		<complexType>
+			<sequence minOccurs="1">
+				<element ref="tns:State"></element>
+			</sequence>
+		</complexType>
+	</element>
+
+</schema>

@@ -1,0 +1,39 @@
+#START_TIME_FORMAT
+START_TIME_FORMAT\bMID (\d{4})\b~TrafficCastSeparateSign~06-15-$1
+START_TIME_FORMAT\bEARLY (\d{4})\b~TrafficCastSeparateSign~01-01-$1
+START_TIME_FORMAT\bLATE (\d{4})\b~TrafficCastSeparateSign~12-31-$1
+START_TIME_FORMAT\bJANUARY\b~TrafficCastSeparateSign~01
+START_TIME_FORMAT\bFEBRUARY\b~TrafficCastSeparateSign~02
+START_TIME_FORMAT\bMARCH\b~TrafficCastSeparateSign~03
+START_TIME_FORMAT\bAPRIL\b~TrafficCastSeparateSign~04
+START_TIME_FORMAT\bMAY\b~TrafficCastSeparateSign~05
+START_TIME_FORMAT\bJUNE\b~TrafficCastSeparateSign~06
+START_TIME_FORMAT\bJULY\b~TrafficCastSeparateSign~07
+START_TIME_FORMAT\bAUGUST\b~TrafficCastSeparateSign~08
+START_TIME_FORMAT\bSEPTEMBER\b~TrafficCastSeparateSign~09
+START_TIME_FORMAT\bOCTOBER\b~TrafficCastSeparateSign~10
+START_TIME_FORMAT\bNOVEMBER\b~TrafficCastSeparateSign~11
+START_TIME_FORMAT\bDECEMBER\b~TrafficCastSeparateSign~12
+START_TIME_FORMAT(\d{2})\s(\d+)\s(\d{4})~TrafficCastSeparateSign~$1-$2-$3
+START_TIME_FORMAT^(\d{2})\s(\d{4})$~TrafficCastSeparateSign~$1-01-$2
+
+#END_TIME_FORMAT
+END_TIME_FORMAT\bMID (\d{4})\b~TrafficCastSeparateSign~06-15-$1
+END_TIME_FORMAT\bEARLY (\d{4})\b~TrafficCastSeparateSign~01-01-$1
+END_TIME_FORMAT\bLATE (\d{4})\b~TrafficCastSeparateSign~12-31-$1
+END_TIME_FORMAT\bJANUARY\b~TrafficCastSeparateSign~01
+END_TIME_FORMAT\bFEBRUARY\b~TrafficCastSeparateSign~02
+END_TIME_FORMAT\bMARCH\b~TrafficCastSeparateSign~03
+END_TIME_FORMAT\bAPRIL\b~TrafficCastSeparateSign~04
+END_TIME_FORMAT\bMAY\b~TrafficCastSeparateSign~05
+END_TIME_FORMAT\bJUNE\b~TrafficCastSeparateSign~06
+END_TIME_FORMAT\bJULY\b~TrafficCastSeparateSign~07
+END_TIME_FORMAT\bAUGUST\b~TrafficCastSeparateSign~08
+END_TIME_FORMAT\bSEPTEMBER\b~TrafficCastSeparateSign~09
+END_TIME_FORMAT\bOCTOBER\b~TrafficCastSeparateSign~10
+END_TIME_FORMAT\bNOVEMBER\b~TrafficCastSeparateSign~11
+END_TIME_FORMAT\bDECEMBER\b~TrafficCastSeparateSign~12
+END_TIME_FORMAT(\d{2})\s(\d+)\s(\d{4})~TrafficCastSeparateSign~$1-$2-$3
+END_TIME_FORMAT^(\d{2})\s(\d{4})$~TrafficCastSeparateSign~$1-31-$2
+END_TIME_FORMAT^(0(?:4|6|9|11))-31-(\d{4})$~TrafficCastSeparateSign~$1-30-$2
+END_TIME_FORMAT^(02)-31-(\d{4})$~TrafficCastSeparateSign~$1-29-$2

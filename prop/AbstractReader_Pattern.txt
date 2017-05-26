@@ -1,0 +1,19 @@
+#MAIN_ST_PATTERN
+MAIN_ST_PATTERN~TrafficCastSeparateSign~(.+) BETWEEN .+ AND .+
+MAIN_ST_PATTERN~TrafficCastSeparateSign~(.+) (?:FROM|AND) .+ TO .+
+MAIN_ST_PATTERN~TrafficCastSeparateSign~(.+) & .+
+MAIN_ST_PATTERN~TrafficCastSeparateSign~(.+) AND .+
+MAIN_ST_PATTERN~TrafficCastSeparateSign~\d+ (.+)
+
+#FROM_ST_PATTERN
+FROM_ST_PATTERN~TrafficCastSeparateSign~.+ BETWEEN (.+) AND .+
+FROM_ST_PATTERN~TrafficCastSeparateSign~.+ (?:FROM|AND) (.+) TO .+
+FROM_ST_PATTERN~TrafficCastSeparateSign~.+ & (.+)
+FROM_ST_PATTERN~TrafficCastSeparateSign~.+ AND (.+)
+FROM_ST_PATTERN~TrafficCastSeparateSign~(\d+) .+
+
+#TO_ST_PATTERN
+TO_ST_PATTERN~TrafficCastSeparateSign~.+ BETWEEN .+ AND (.+)
+TO_ST_PATTERN~TrafficCastSeparateSign~.+ (?:FROM|AND) .+ TO (.+)
+
+#STREET_PATTERN_WITH3

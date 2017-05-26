@@ -1,0 +1,92 @@
+#Common cases
+\p{Punct}+$~TrafficCastSeparateSign~ 
+(.*) MM\d+[A-Z]?\b.*$~TrafficCastSeparateSign~$1
+#(.*) (EAST|WEST|SOUTH|NORTH)\b.*~TrafficCastSeparateSign~$1
+(.*) (EAST|WEST|SOUTH|NORTH)BOUND\b.*~TrafficCastSeparateSign~$1
+(.*) (W|E|N|S)B\b.*~TrafficCastSeparateSign~$1
+(.+)\(.+~TrafficCastSeparateSign~$1
+(.+)&.*~TrafficCastSeparateSign~$1
+(.*) \b(?:AT|IN|ON|TO)\b .*~TrafficCastSeparateSign~$1
+.*\sOF\s(.*)~TrafficCastSeparateSign~$1
+(.*) EXIT .*~TrafficCastSeparateSign~$1
+ [SWEN]$~TrafficCastSeparateSign~ 
+ (NE|SW|NW|SE)$~TrafficCastSeparateSign~ 
+\s\s+~TrafficCastSeparateSign~ 
+/.*~TrafficCastSeparateSign~ 
+(?<=\d+| EAST| WEST| NORTH| SOUTH) HW$~TrafficCastSeparateSign~ 
+ (EAST|WEST|NORTH|SOUTH)$~TrafficCastSeparateSign~ 
+.* US (\d+)~TrafficCastSeparateSign~US-$1
+.* THE (.*)~TrafficCastSeparateSign~$1
+\bINTERSTATE (\d+)~TrafficCastSeparateSign~I-$1
+^US\s?(\d+)~TrafficCastSeparateSign~US-$1
+^I\s?(\d+)~TrafficCastSeparateSign~I-$1
+^((?:(?:W|E|S|N)\s)?SR)\s?(\d+[AB]?)~TrafficCastSeparateSign~$1-$2
+^(US-\d+)\s?(SPUR\b|ALT\b)~TrafficCastSeparateSign~$1-$2
+^(I-\d+)\s?(BR\b|SPUR\b|ALT\b)~TrafficCastSeparateSign~$1-$2
+^((?:(?:W|E|S|N)\s)?SR-\d+[AB]?)\s?(ALT\b|TOLL\b)~TrafficCastSeparateSign~$1-$2
+^((US|I|((W|E|S|N)\s)?SR)-\d+[AB]?(-(BR|TOLL|SPUR|ALT|\d))?)\b.*~TrafficCastSeparateSign~$1
+^MM (\d+[A-Z])$~TrafficCastSeparateSign~EXIT $1
+(\d{4,5} .*)~TrafficCastSeparateSign~$1
+.* ([SWEN] BW \d+)~TrafficCastSeparateSign~$1
+ENT RAMP~TrafficCastSeparateSign~ 
+(.+) RAMP$~TrafficCastSeparateSign~$1
+\s+~TrafficCastSeparateSign~ 
+\bFIRST\b~TrafficCastSeparateSign~1ST
+\bSECOND\b~TrafficCastSeparateSign~2ND
+\bTHIRD\b~TrafficCastSeparateSign~3RD
+\bFOURTH\b~TrafficCastSeparateSign~4TH
+\bFIFTH\b~TrafficCastSeparateSign~5TH
+\bSIXTH\b~TrafficCastSeparateSign~6TH
+\bSEVENTH\b~TrafficCastSeparateSign~7TH
+\bEIGHTH\b~TrafficCastSeparateSign~8TH
+\b(NINETH|NINTH)\b~TrafficCastSeparateSign~9TH
+\bTENTH\b~TrafficCastSeparateSign~10TH
+\bELEVENTH\b~TrafficCastSeparateSign~11TH
+\bTWELFTH\b~TrafficCastSeparateSign~12TH
+\bTHIRTEENTH\b~TrafficCastSeparateSign~13TH
+\bFOURTEENTH\b~TrafficCastSeparateSign~14TH
+\bFIFTEENTH\b~TrafficCastSeparateSign~15TH
+\bSIXTEENTH\b~TrafficCastSeparateSign~16TH
+\bSEVENTEENTH\b~TrafficCastSeparateSign~17TH
+\bEIGHTEENTH\b~TrafficCastSeparateSign~18TH
+\bNINETEENTH\b~TrafficCastSeparateSign~19TH
+\bTWENTIETH\b~TrafficCastSeparateSign~20TH
+(?<!^)(\bSTREET$\b|\bSTREET\b)~TrafficCastSeparateSign~ST
+(?<!^)(\bAVENUE$\b|\bAVENUES$\b|\bAV$\b)~TrafficCastSeparateSign~AVE
+(?<!^)(\bROAD$\b)~TrafficCastSeparateSign~RD
+(?<!^)(\bBOULEVARD$\b|\bBL$\b|\bBLV$\b)~TrafficCastSeparateSign~BLVD
+(?<!^)(\bDRIVE$\b)~TrafficCastSeparateSign~DR
+(?<!^)(\bPKY$\b|\bPARKWAY$\b|\bPARKWAY\b|\bPW$\b|\bPKW\b|\bPK\b|\bPKWAY\b)~TrafficCastSeparateSign~PKWY
+(?<!^)(\bEXPRESSWAY$\b)~TrafficCastSeparateSign~EXPY
+(?<!^)(\bTUNNEL$\b)~TrafficCastSeparateSign~TUNL
+(?<!^)(\bBRIDGES$\b|\bBRIDGE$\b|\bBRDG\b)~TrafficCastSeparateSign~BRG
+(?<!^)(\bHIGHWAY$\b)~TrafficCastSeparateSign~HWY
+(?<!^)(\bCIRCLE$\b|\bCL$\b)~TrafficCastSeparateSign~CIR
+(?<!^)(\bPLACE$\b)~TrafficCastSeparateSign~PL
+(?<!^)(\bALLEY$\b)~TrafficCastSeparateSign~ALY
+(?<!^)(\bVIADUCT$\b)~TrafficCastSeparateSign~VIAD
+(?<!^)(\bLANE\b)$~TrafficCastSeparateSign~LN
+(?<!^)(\bCREEK$\b)~TrafficCastSeparateSign~CRK
+(?<!^)(\bBYPASS$\b)~TrafficCastSeparateSign~BYP
+(?<!^)(\bTURNPIKE$\b)~TrafficCastSeparateSign~TPKE
+(?<!^)(\bPKE$\b)~TrafficCastSeparateSign~PIKE
+(?<!^)(\bCROSSING$\b)~TrafficCastSeparateSign~XING
+(?<!^)(\bCONNECTOR$\b)~TrafficCastSeparateSign~CONN
+(?<!^)(\bRIVER\b)$~TrafficCastSeparateSign~RIV
+(?<!^)(\bTHROUGHWAY$\b|\bTW$\b)~TrafficCastSeparateSign~THWY
+(?<!^)(\bWY$\b)~TrafficCastSeparateSign~WAY
+(?<!^)(\bHW$\b)~TrafficCastSeparateSign~HWY
+(?<!^)(\bLP$\b)~TrafficCastSeparateSign~LOOP
+(?<!^)(\bTL$\b)~TrafficCastSeparateSign~TRL
+(?<!^)(\bRW$\b)~TrafficCastSeparateSign~ROW
+(?<!^)(\bPLAZA\b)$~TrafficCastSeparateSign~PLZ
+(?<!^)(\bCENTER\b|\bCENTRE\b)$~TrafficCastSeparateSign~CTR
+(?<!^)(\bRIDGE\b)$~TrafficCastSeparateSign~RDG
+(?<!^)(\bBEND\b)$~TrafficCastSeparateSign~BND
+(?<!^)(\bCOVE\b)$~TrafficCastSeparateSign~CV
+(?<!^)(\bTERRACE\b)$~TrafficCastSeparateSign~TER
+#Special cases
+^SW 117TH AVENUE RD$~TrafficCastSeparateSign~SW 117TH RD
+^NE MIAMI GARDENS D$~TrafficCastSeparateSign~NE MIAMI GARDENS DR
+^TPK EXT$~TrafficCastSeparateSign~FLORIDA'S TPKE HOMESTEAD EXT
+^NW N RIVER DR$~TrafficCastSeparateSign~NW NORTH RIVER DR
