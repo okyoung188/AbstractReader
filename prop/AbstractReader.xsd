@@ -5,8 +5,6 @@
 	<element name="ReaderParams">
 		<complexType>
 			<sequence>
-				<element ref="tns:DataURLs"></element>
-				<element ref="tns:MapURL"></element>
 				<element ref="tns:SleepTimeOut"></element>
 				<element ref="tns:ConnectTimeOut"></element>
 				<element ref="tns:RetryTimeOut"></element>
@@ -14,6 +12,8 @@
 				<element ref="tns:REVERSE_GEOCODING_FLAG"></element>
 				<element ref="tns:State"></element>
 				<element ref="tns:City"></element>
+				<element ref="tns:DataURLs"></element>
+				<element ref="tns:MapURL"></element>
 			</sequence>
 		</complexType>
 	</element>
@@ -46,6 +46,29 @@
 		<complexType>
 			<sequence minOccurs="1">
 				<element ref="tns:State"></element>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="Extractor">
+	   <complexType>
+	       //filepath,patternelemt
+	   </complexType>
+	</element>
+	<element name="Formatter">
+	<complexType>
+	//filepath,patternelemt
+	</complexType>
+	</element>
+	<element name="Refiner">
+	<complexType>
+	//filepath,patternelemt
+	</complexType>
+	</element>
+	
+	<element name="Processor">
+		<complexType>
+			<sequence minOccurs="1" maxOccurs="unbounded">
+				<element ref="tns:City"></element>
 			</sequence>
 		</complexType>
 	</element>
