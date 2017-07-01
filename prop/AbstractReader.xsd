@@ -52,6 +52,7 @@
 	<element name="Extractor">
 	   <complexType>
 	       //filepath,patternelemt
+	       <attribute name="filepath" type="string"></attribute>
 	   </complexType>
 	</element>
 	<element name="Formatter">
