@@ -5,6 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.NoRouteToHostException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,14 +22,28 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import com.extracter.Extracter;
+import com.formatter.Formatter;
+import com.requester.Requester;
+import com.trafficcast.base.dbutils.DBConnector;
+import com.trafficcast.base.dbutils.DBUtils;
+import com.trafficcast.base.enums.EventType;
+import com.trafficcast.base.geocoding.MySqlGeocodingEngine;
+import com.trafficcast.base.geocoding.MySqlGeocodingInitiater;
+import com.trafficcast.base.inccon.IncConDBUtils;
 import com.trafficcast.base.inccon.IncConRecord;
 
 
-public class AbstractReader {
+public abstract class AbstractReader {
 	// Current version of this class.
 	public static final double VERSION = 1.0;
 
@@ -33,7 +51,7 @@ public class AbstractReader {
 	private static final int READER_TYPE = 10;
 	
 	// log4j instance
-	private final Logger LOGGER = Logger.getLogger(this.getClass());
+	public static final Logger LOGGER = Logger.getLogger(AbstractReader.class);
 
 	/**
 	 * Reader ID
@@ -142,8 +160,12 @@ public class AbstractReader {
 	
 	
 	
-
+    private int urlSize;
+    private int finishedSize;
 	
+    public boolean isFinished(){
+    	return urlSize == finishedSize;
+    }
 	
 	
 
@@ -255,12 +277,26 @@ public class AbstractReader {
 	// HashMap to store error info
 	private HashMap<String, String> unknownErrorMap;
 	
+	
+	
+	Requester requester;
+	Formatter formatter;
+	Extracter extracter;
+	List<String> processors;
+	ReaderParamParser parser;
+	
 	//init when the reader constructed
 	{
 		setDefaultFilePath();//init its default file path
 		
 	}
 
+	public void setParser(ReaderParamParser parser) throws Exception{
+		if (parser == null){
+			throw new Exception("No paramParser defined.");
+		}
+		this.parser = parser;
+	}
 
 
 	/**
@@ -871,6 +907,22 @@ public class AbstractReader {
 		}
 		return cityCode;
 	}
+	
+	/**
+	 * Initialize instance level variables
+	 * 
+	 * @param None
+	 * @return None
+	 */
+	private void initVariables() throws Exception {
+		inc_list = new ArrayList<IncConRecord>();
+		con_list = new ArrayList<IncConRecord>();
+		tta_list = new ArrayList<IncConRecord>();
+		DBConnector.getInstance().setReaderID(READER_ID);
+		defaultTimeZone = DBUtils.getTimeZone(CITY, STATE);
+		LOGGER.info("InitVariable successfully!");
+	}
+
 
 	/**
 	 * Save error message to a output file
@@ -905,6 +957,156 @@ public class AbstractReader {
 			LOGGER.debug("Error file is not properly configured.");
 		}
 	}
+	
+	/**
+	 * Read from website, parse html, analyze record, save to database,
+	 * Geocoding, sleep and then start another loop.
+	 * 
+	 * @param None
+	 * @return None
+	 * @exception Exception
+	 * @see
+	 **/
+	protected void run() throws Exception {
+		long startTime, sleepTime, waitTime = 0;
+        if (parser != null){
+        	parser.parseParam();
+        } else {
+        	throw new Exception("");
+        }
+        processors = parser.getProcessors();
+        
+        
+		if (loadProperties() && loadPatterns() && loadStreatAlias() &&loadEventTypeKeywords()) {
+			LOGGER.info("Load properties and initialize completed, next will enter while()");
+		} else {
+			LOGGER.fatal("Load properties failed ! Program will terminate.");
+			throw new RuntimeException(); // main() will catch this exception.
+		}
+
+		initVariables();
+
+		while (true) {
+			try {
+				startTime = System.currentTimeMillis();
+				LOGGER.info("Starting to parse sea website for Incident/Construction information.");
+
+				// Read the data source
+				readDataSource();
+
+				// util all finished
+				while(!isFinished()){
+				}
+				
+				// Update DB
+				IncConDBUtils.updateDB(inc_list, STATE, EventType.INCIDENT);
+				IncConDBUtils.updateDB(con_list, STATE, EventType.CONSTRUCTION);
+				IncConDBUtils.updateDB(tta_list, STATE, EventType.TTA);
+
+				// Update "last run" field in MySql table containing reader
+				// program IDs.
+				DBUtils.updateReaderLastRun(loopSleepTime, READER_TYPE);
+
+				// Geocoding
+				LOGGER.info("Starting GEOCoding process.");
+				MySqlGeocodingEngine geo = null;
+				geo = new MySqlGeocodingInitiater(CITY, READER_ID);
+				geo.initiateGeocoding();
+				sleepTime = loopSleepTime - (System.currentTimeMillis() - startTime);
+				if (sleepTime < 0) {
+					sleepTime = 1000;
+				}
+
+				// Clear the ArrayList
+				inc_list.clear();
+				con_list.clear();
+				tta_list.clear();
+				System.gc();
+				LOGGER.info("Last built on 06/22/2017; Ticket Number: #8497");
+				LOGGER.info("Sleeping for " + (sleepTime / 1000) + " seconds.");
+				System.out.println();
+				DBConnector.getInstance().disconnect();
+				Thread.sleep(sleepTime);
+				waitTime = 0;
+			} catch (NoRouteToHostException ex) {
+				LOGGER.warn("This machine's internet connection is unavailable, retrying in  " + retryWaitTime / 60000 + "  mins...");
+				try {
+					Thread.sleep(retryWaitTime);
+				} catch (InterruptedException ex1) {
+					LOGGER.fatal("Thread was interrupted.");
+				}
+			} catch (ConnectException ex) {
+				LOGGER.warn("Connection to the sea website" + " feed was refused, retyring in " + retryWaitTime / 60000 + " mins...");
+				try {
+					Thread.sleep(retryWaitTime);
+				} catch (InterruptedException ex1) {
+					LOGGER.fatal("Thread was interrupted.");
+				}
+			} catch (SocketException ex) {
+				LOGGER.warn("Connection to the sea website" + " feed was refused, retyring in " + retryWaitTime / 60000 + " mins...");
+				try {
+					Thread.sleep(retryWaitTime);
+				} catch (InterruptedException ex1) {
+					LOGGER.fatal("Thread was interrupted.");
+				}
+			} catch (UnknownHostException ex) {
+				LOGGER.warn("Unkown host. Could not establish contact with the sea website, retrying in " + retryWaitTime / 60000 + " mins...");
+				try {
+					Thread.sleep(retryWaitTime);
+				} catch (InterruptedException ex1) {
+					LOGGER.fatal("Thread was interrupted.");
+				}
+			} catch (FileNotFoundException ex) {
+				LOGGER.warn("Could not retrieve Inc data, retrying in " + retryWaitTime / 60000 + " mins...");
+				try {
+					Thread.sleep(retryWaitTime);
+				} catch (InterruptedException ex1) {
+					LOGGER.fatal("Thread was interrupted.");
+				}
+			} catch (IOException ex) {
+				LOGGER.warn(ex.getMessage() + ", retrying in " + retryWaitTime / 60000 + " mins...");
+				try {
+					Thread.sleep(retryWaitTime);
+				} catch (InterruptedException ex1) {
+					LOGGER.fatal("Thread was interrupted.");
+				}
+			} catch (Exception ex) {
+				waitTime += waitTime == 0 ? SEED : waitTime;
+				LOGGER.log(Level.FATAL, "Unexpected exception (" + ex + "). " + "Restarting parsing process in " + waitTime / 60000 + " minute(s).", ex);
+				System.out.println();
+				try {
+					Thread.sleep(waitTime);
+				} catch (InterruptedException ex1) {
+					LOGGER.fatal("Thread interrupted!");
+				}
+			} finally {
+				inc_list.clear();
+				con_list.clear();
+				tta_list.clear();
+			}
+		}// end of while
+
+	}
+
+	private void readDataSource() {
+		Requester requester = getProcessor("Requester");
+		Executor executor = Executors.newCachedThreadPool();
+		executor.execute(new Runnable(){
+			@Override
+			public void run() {
+				parseDataSource();
+			}
+		});		
+	}
+	
+	private Requester getProcessor(String string) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public abstract void parseDataSource();
+
 	
 	
 }

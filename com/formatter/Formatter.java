@@ -23,7 +23,7 @@ public class Formatter extends AbstractProcessor {
 	 * @param tcSeparateSign
 	 */
 	public Formatter(String filePath,String tcSeparateSign) {
-		this.filePath = filePath;
+		setFilePath(filePath);
 		this.tcSeparateSign = tcSeparateSign;
 	}
 	public Formatter() {
@@ -39,7 +39,7 @@ public class Formatter extends AbstractProcessor {
 		String[] keyValue = null;
 		
 		try {
-			reader = new BufferedReader(new FileReader(filePath));
+			reader = new BufferedReader(new FileReader(getFilePath()));
 			while ((lineRead = reader.readLine()) != null) {
 				if (lineRead.length() < tcSeparateSign.length() + 2
 						|| lineRead.startsWith("#")) {

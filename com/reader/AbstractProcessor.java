@@ -12,7 +12,7 @@ public abstract class AbstractProcessor {
 	/**
 	 * The processor's file path
 	 */
-	public String filePath;
+	private String filePath;
 	
 	/**
 	 * tcSeperateSign to split the pattern type and pattern string.

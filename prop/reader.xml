@@ -7,9 +7,9 @@
 	<REVERSE_GEOCODING_FLAG>true</REVERSE_GEOCODING_FLAG>
 	<State>AR</State>
     <City>BSV</City>
-    
 	<DataURLs>
 		<DataURL>https://db9f583wfbsn9.cloudfront.net/construction_point.geojson</DataURL>
+		<DataURL></DataURL>
 	</DataURLs>
 	<MapURL>https://db9f583wfbsn9.cloudfront.net/construction_point.geojson</MapURL>
 
