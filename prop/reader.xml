@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ReaderParams xmlns="http://www.example.org/AbstractReader/">
+<ReaderParam xmlns="http://www.example.org/AbstractReader/">
 	<SleepTimeOut>180</SleepTimeOut>
 	<ConnectTimeOut>180</ConnectTimeOut>
 	<RetryTimeOut>120</RetryTimeOut>
@@ -7,10 +7,10 @@
 	<REVERSE_GEOCODING_FLAG>true</REVERSE_GEOCODING_FLAG>
 	<State>AR</State>
     <City>BSV</City>
-	<DataURLs>
+	<DataURLList>
 		<DataURL>https://db9f583wfbsn9.cloudfront.net/construction_point.geojson</DataURL>
 		<DataURL></DataURL>
-	</DataURLs>
+	</DataURLList>
 	<MapURL>https://db9f583wfbsn9.cloudfront.net/construction_point.geojson</MapURL>
 
-</ReaderParams>
+</ReaderParam>

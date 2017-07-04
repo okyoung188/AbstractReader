@@ -2,7 +2,7 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/AbstractReader/"
 	targetNamespace="http://www.example.org/AbstractReader/">
 	<!-- Root element -->
-	<element name="ReaderParams">
+	<element name="ReaderParam">
 		<complexType>
 			<sequence>
 				<element ref="tns:SleepTimeOut"></element>
@@ -12,8 +12,6 @@
 				<element ref="tns:REVERSE_GEOCODING_FLAG"></element>
 				<element ref="tns:State"></element>
 				<element ref="tns:City"></element>
-				<element ref="tns:CitySet"></element>
-				<element ref="tns:Processor"></element>
 			</sequence>
 		</complexType>
 	</element>
@@ -63,7 +61,7 @@
 
 	<complexType name="RequestType">
 		<sequence minOccurs="1" maxOccurs="1">
-			<element name="DataURLs">
+			<element name="DataURLList">
 				<complexType>
 					<sequence>
 						<element name="DataURL">
