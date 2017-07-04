@@ -2,7 +2,7 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/AbstractReader/"
 	targetNamespace="http://www.example.org/AbstractReader/">
 	<!-- Root element -->
-	<element name="ReaderParams">
+	<element name="ReaderParam">
 		<complexType>
 			<sequence>
 				<element ref="tns:SleepTimeOut"></element>
@@ -12,20 +12,11 @@
 				<element ref="tns:REVERSE_GEOCODING_FLAG"></element>
 				<element ref="tns:State"></element>
 				<element ref="tns:City"></element>
-				<element ref="tns:DataURLs"></element>
-				<element ref="tns:MapURL"></element>
 			</sequence>
 		</complexType>
 	</element>
 
 	<!-- Param Element -->
-	<element name="DataURLs">
-		<complexType>
-			<sequence minOccurs="1" maxOccurs="unbounded">
-				<element ref="tns:DataURL"></element>
-			</sequence>
-		</complexType>
-	</element>
 	<element name="MapURL" type="anyURI"></element>
 	<element name="SleepTimeOut" type="integer"></element>
 	<element name="ConnectTimeOut" type="integer"></element>
@@ -35,7 +26,8 @@
 	<element name="City" type="string"></element>
 	<element name="State" type="string"></element>
 	<element name="DataURL" type="anyURI"></element>
-	<element name="Citys">
+	
+	<element name="CitySet">
 		<complexType>
 			<sequence minOccurs="1" maxOccurs="unbounded">
 				<element ref="tns:City"></element>
@@ -49,28 +41,47 @@
 			</sequence>
 		</complexType>
 	</element>
-	<element name="Extractor">
-	   <complexType>
-	       //filepath,patternelemt
-	       <attribute name="filepath" type="string"></attribute>
-	   </complexType>
-	</element>
-	<element name="Formatter">
-	<complexType>
-	//filepath,patternelemt
+
+	<complexType name="ProcessType">
+		<sequence>
+			<element name="filepath" type="anyURI"></element>
+			<element name="patternlist">
+				<simpleType>
+					<list itemType="string"></list>
+				</simpleType>
+			</element>
+		</sequence>
 	</complexType>
-	</element>
-	<element name="Refiner">
-	<complexType>
-	//filepath,patternelemt
+	
+	<element name="Extractor" type="tns:ProcessType"></element>
+	<element name="Formatter" type="tns:ProcessType"></element>
+	<element name="Refiner" type="tns:ProcessType"></element>
+	<element name="Requester" type="tns:RequestType"></element>
+
+
+	<complexType name="RequestType">
+		<sequence minOccurs="1" maxOccurs="1">
+			<element name="DataURLList">
+				<complexType>
+					<sequence>
+						<element name="DataURL">
+                              <complexType></complexType>
+						</element>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
 	</complexType>
-	</element>
+	
 	
 	<element name="Processor">
 		<complexType>
-			<sequence minOccurs="1" maxOccurs="unbounded">
-				<element ref="tns:City"></element>
-			</sequence>
+			<all>
+			    <element ref="tns:Requester"></element>
+				<element ref="tns:Extractor"></element>
+				<element ref="tns:Formatter"></element>
+				<element ref="tns:Refiner"></element>
+			</all>
 		</complexType>
 	</element>
 

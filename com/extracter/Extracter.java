@@ -57,7 +57,7 @@ public class Extracter extends AbstractProcessor {
 	 * @param tcSeparateSign
 	 */
 	public Extracter(String filePath,String tcSeparateSign) {
-		this.filePath = filePath;
+		setFilePath(filePath);
 		this.tcSeparateSign = tcSeparateSign;
 	}
 	public Extracter() {
@@ -170,7 +170,7 @@ public class Extracter extends AbstractProcessor {
 	 */
 	@Override
 	public boolean load() throws Exception {
-		if (filePath != null){
+		if (getFilePath() != null){
 			BufferedReader reader = null;
 			String lineRead = null;
 			String[] keyValue = null;
@@ -185,7 +185,7 @@ public class Extracter extends AbstractProcessor {
 			LOGGER.info("Start to load patterns.");
 
 			try {
-				reader = new BufferedReader(new FileReader(filePath));
+				reader = new BufferedReader(new FileReader(getFilePath()));
 				while ((lineRead = reader.readLine()) != null) {
 					if (lineRead.length() < tcSeparateSign.length() + 2
 							|| lineRead.startsWith("#")) {
@@ -263,7 +263,7 @@ public class Extracter extends AbstractProcessor {
 				LOGGER.info("Load patterns successfully!");
 				return true;
 			} catch (FileNotFoundException ex) {
-				LOGGER.fatal("Patterns file:" + filePath
+				LOGGER.fatal("Patterns file:" + getFilePath()
 						+ " does not exist, program will terminate now ("
 						+ ex.getMessage() + ")");
 			} catch (Exception ex) {
