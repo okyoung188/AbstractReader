@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ReaderParam xmlns="http://www.example.org/AbstractReader/">
+<Reader name="abstractReader" xmlns="http://www.example.org/AbstractReader/">
 	<SleepTimeOut>180</SleepTimeOut>
 	<ConnectTimeOut>180</ConnectTimeOut>
 	<RetryTimeOut>120</RetryTimeOut>
-	<TC_SEPARATE_SIGN>TC_SEPARATE_SIGN</TC_SEPARATE_SIGN>
-	<REVERSE_GEOCODING_FLAG>true</REVERSE_GEOCODING_FLAG>
-	<State>AR</State>
-    <City>BSV</City>
+	<Tc_Separate_Sign>TC_SEPARATE_SIGN</Tc_Separate_Sign>
+	<Reverse_Geocoding_Flag>true</Reverse_Geocoding_Flag>
+	<City name="SEA"></City>
+	<State name="WA"></State>
+	<TimeZone state="" city=""></TimeZone>
+	
 	<DataURLList>
 		<DataURL>https://db9f583wfbsn9.cloudfront.net/construction_point.geojson</DataURL>
 		<DataURL></DataURL>
 	</DataURLList>
 	<MapURL>https://db9f583wfbsn9.cloudfront.net/construction_point.geojson</MapURL>
 
-</ReaderParam>
+</Reader>

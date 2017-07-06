@@ -2,17 +2,25 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/AbstractReader/"
 	targetNamespace="http://www.example.org/AbstractReader/">
 	<!-- Root element -->
-	<element name="ReaderParam">
+	<element name="Reader">
 		<complexType>
 			<sequence>
 				<element ref="tns:SleepTimeOut"></element>
 				<element ref="tns:ConnectTimeOut"></element>
 				<element ref="tns:RetryTimeOut"></element>
-				<element ref="tns:TC_SEPARATE_SIGN"></element>
-				<element ref="tns:REVERSE_GEOCODING_FLAG"></element>
-				<element ref="tns:State"></element>
-				<element ref="tns:City"></element>
+				<element ref="tns:Tc_Separate_Sign"></element>
+				<element ref="tns:Reverse_Geocoding_Flag"></element>
+				<choice>
+				  <element ref="tns:City"></element>
+				  <element ref="tns:CitySet"></element>
+				</choice>
+				<all><element ref="tns:State"></element></all>
+				<choice>
+				  <element ref="tns:TimeZone"></element>
+				  <element ref="tns:TimeZones"></element>
+				</choice>
 			</sequence>
+			<attribute name="name" type="string" use="required"></attribute>
 		</complexType>
 	</element>
 
@@ -21,11 +29,45 @@
 	<element name="SleepTimeOut" type="integer"></element>
 	<element name="ConnectTimeOut" type="integer"></element>
 	<element name="RetryTimeOut" type="integer"></element>
-	<element name="TC_SEPARATE_SIGN" type="string"></element>
-	<element name="REVERSE_GEOCODING_FLAG" type="boolean"></element>
-	<element name="City" type="string"></element>
-	<element name="State" type="string"></element>
+	<element name="Tc_Separate_Sign" type="string"></element>
+	<element name="Reverse_Geocoding_Flag" type="boolean"></element>
+	<element name="City">
+	    <complexType>
+	        <sequence minOccurs="0">
+	            <element name="county">
+	                <simpleType>
+	                    <list itemType="string"></list>
+	                </simpleType>
+	            </element>
+	        </sequence>
+	        <attribute name="name" type="string" use="required"></attribute>
+	    </complexType>
+	</element>
+	<element name="State">
+	   <complexType>
+	        <sequence minOccurs="0">
+	            <element name="city">
+	                <simpleType>
+	                    <list itemType="string"></list>
+	                </simpleType>
+	            </element>
+	        </sequence>
+	        <attribute name="name" type="string" use="required"></attribute>
+	    </complexType>
+	</element>
 	<element name="DataURL" type="anyURI"></element>
+	<element name="TimeZone">
+	    <complexType>
+	       <attribute name="state" type="string" use="required"></attribute>
+	       <attribute name="city" type="string" use="required"></attribute>
+	       <attribute name="default" type="boolean" use="optional"></attribute>
+	    </complexType>
+	</element>
+	<element name="TimeZones">
+	 <complexType>
+	    <sequence minOccurs="1" maxOccurs="unbounded"><element name="TimeZone"></element></sequence>
+	 </complexType>
+	</element>
 	
 	<element name="CitySet">
 		<complexType>
@@ -34,6 +76,7 @@
 			</sequence>
 		</complexType>
 	</element>
+	
 	<element name="States">
 		<complexType>
 			<sequence minOccurs="1">
@@ -42,31 +85,39 @@
 		</complexType>
 	</element>
 
+
+   <!-- PROCESSOR -->
 	<complexType name="ProcessType">
 		<sequence>
-			<element name="filepath" type="anyURI"></element>
-			<element name="patternlist">
+			<element name="patterntype">
 				<simpleType>
 					<list itemType="string"></list>
 				</simpleType>
 			</element>
 		</sequence>
+		<attribute name="filepath" type="anyURI"></attribute>
 	</complexType>
-	
 	<element name="Extractor" type="tns:ProcessType"></element>
 	<element name="Formatter" type="tns:ProcessType"></element>
 	<element name="Refiner" type="tns:ProcessType"></element>
+	
 	<element name="Requester" type="tns:RequestType"></element>
-
-
 	<complexType name="RequestType">
 		<sequence minOccurs="1" maxOccurs="1">
 			<element name="DataURLList">
 				<complexType>
 					<sequence>
 						<element name="DataURL">
-                              <complexType></complexType>
+                            <complexType>
+                                <sequence>
+                                   <element ref="tns:MapURL"></element>
+                                   <element name="postparam" type="string"></element>
+                                </sequence>
+                                <attribute name="base" type="anyURI"></attribute>
+                                <attribute name="method" type="string"></attribute>
+                            </complexType>
 						</element>
+						<element ref="tns:MapURL"></element>
 					</sequence>
 				</complexType>
 			</element>
