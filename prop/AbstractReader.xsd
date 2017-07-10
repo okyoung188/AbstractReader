@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/AbstractReader/"
-	targetNamespace="http://www.example.org/AbstractReader/">
+	targetNamespace="http://www.example.org/AbstractReader/" elementFormDefault="qualified">
 	<!-- Root element -->
 	<element name="Reader">
 		<complexType>
@@ -8,17 +8,21 @@
 				<element ref="tns:SleepTimeOut"></element>
 				<element ref="tns:ConnectTimeOut"></element>
 				<element ref="tns:RetryTimeOut"></element>
-				<element ref="tns:Tc_Separate_Sign"></element>
-				<element ref="tns:Reverse_Geocoding_Flag"></element>
+				<element ref="tns:TcSeparateSign"></element>
+				<element ref="tns:ReverseGeocodingFlag"></element>
 				<choice>
 				  <element ref="tns:City"></element>
 				  <element ref="tns:CitySet"></element>
 				</choice>
-				<all><element ref="tns:State"></element></all>
+				<choice>
+					<element ref="tns:State" minOccurs="0"></element>
+				    <element ref="tns:States"></element>
+				</choice>
 				<choice>
 				  <element ref="tns:TimeZone"></element>
 				  <element ref="tns:TimeZones"></element>
 				</choice>
+				<element ref="tns:Processor"></element>
 			</sequence>
 			<attribute name="name" type="string" use="required"></attribute>
 		</complexType>
@@ -29,8 +33,8 @@
 	<element name="SleepTimeOut" type="integer"></element>
 	<element name="ConnectTimeOut" type="integer"></element>
 	<element name="RetryTimeOut" type="integer"></element>
-	<element name="Tc_Separate_Sign" type="string"></element>
-	<element name="Reverse_Geocoding_Flag" type="boolean"></element>
+	<element name="TcSeparateSign" type="string"></element>
+	<element name="ReverseGeocodingFlag" type="boolean"></element>
 	<element name="City">
 	    <complexType>
 	        <sequence minOccurs="0">
@@ -55,7 +59,6 @@
 	        <attribute name="name" type="string" use="required"></attribute>
 	    </complexType>
 	</element>
-	<element name="DataURL" type="anyURI"></element>
 	<element name="TimeZone">
 	    <complexType>
 	       <attribute name="state" type="string" use="required"></attribute>
@@ -79,7 +82,7 @@
 	
 	<element name="States">
 		<complexType>
-			<sequence minOccurs="1">
+			<sequence minOccurs="1" maxOccurs="unbounded">
 				<element ref="tns:State"></element>
 			</sequence>
 		</complexType>
@@ -103,25 +106,25 @@
 	
 	<element name="Requester" type="tns:RequestType"></element>
 	<complexType name="RequestType">
-		<sequence minOccurs="1" maxOccurs="1">
+		<choice>
 			<element name="DataURLList">
 				<complexType>
 					<sequence>
 						<element name="DataURL">
-                            <complexType>
-                                <sequence>
-                                   <element ref="tns:MapURL"></element>
-                                   <element name="postparam" type="string"></element>
-                                </sequence>
-                                <attribute name="base" type="anyURI"></attribute>
-                                <attribute name="method" type="string"></attribute>
-                            </complexType>
+							<complexType>
+								<sequence>
+									<element ref="tns:MapURL"></element>
+									<element name="postparam" type="string"></element>
+								</sequence>
+								<attribute name="base" type="string"></attribute>
+								<attribute name="method" type="string"></attribute>
+							</complexType>
 						</element>
 						<element ref="tns:MapURL"></element>
 					</sequence>
 				</complexType>
 			</element>
-		</sequence>
+		</choice>
 	</complexType>
 	
 	

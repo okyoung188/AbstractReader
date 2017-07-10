@@ -2,7 +2,7 @@ package com.reader;
 import org.apache.log4j.Logger;
 
 
-public abstract class AbstractProcessor {
+public abstract class Processor {
 	
 	/**
 	 * Logger for the processor

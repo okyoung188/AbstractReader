@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.reader.AbstractProcessor;
+import com.reader.Processor;
 
 
-public class Extracter extends AbstractProcessor {
+public class Extracter extends Processor {
 	
 	/* *
 	 * Default pattern type

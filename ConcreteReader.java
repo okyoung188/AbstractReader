@@ -18,7 +18,7 @@ public class ConcreteReader extends AbstractReader{
 	 */
 	public static void main(String[] args) throws Exception {
 		PropertyConfigurator.configureAndWatch("log4j.properties", 60000);
-		ConcreteReader incCon = new ConcreteReader();
+		AbstractReader incCon = new ConcreteReader();
 		incCon.setParser(new ReaderParamParser());
 		try {
 			incCon.run();

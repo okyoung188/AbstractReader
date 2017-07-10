@@ -7,10 +7,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.reader.AbstractProcessor;
+import com.reader.Processor;
 
 
-public class Formatter extends AbstractProcessor {
+public class Formatter extends Processor {
 
 	private Map<String, String> locationFormatMap;
 	private Map<String,Map<String,String>> extraFormatMap;

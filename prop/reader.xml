@@ -3,16 +3,53 @@
 	<SleepTimeOut>180</SleepTimeOut>
 	<ConnectTimeOut>180</ConnectTimeOut>
 	<RetryTimeOut>120</RetryTimeOut>
-	<Tc_Separate_Sign>TC_SEPARATE_SIGN</Tc_Separate_Sign>
-	<Reverse_Geocoding_Flag>true</Reverse_Geocoding_Flag>
-	<City name="SEA"></City>
-	<State name="WA"></State>
-	<TimeZone state="" city=""></TimeZone>
+	<TcSeparateSign>TC_SEPARATE_SIGN</TcSeparateSign>
+	<ReverseGeocodingFlag>true</ReverseGeocodingFlag>
+	<CitySet>
+		<City name="SEA">
+			<county>AAA AAA AAA</county>
+		</City>
+		<City name="SEA">
+			<county>AAA,AAA,AAA</county>
+		</City>
+		<City name="SEA">
+			<county>AAA AAA AAA</county>
+		</City>
+	</CitySet>
+	<States>
+		<State name="WA">
+		    <city>AAA AAA AAA</city>
+		</State>
+		<State name="WA">
+		    <city>AAA AAA AAA</city>
+		</State>
+		<State name="WA">
+		    <city>AAA AAA AAA</city>
+		</State>
+	</States>
 	
-	<DataURLList>
-		<DataURL>https://db9f583wfbsn9.cloudfront.net/construction_point.geojson</DataURL>
-		<DataURL></DataURL>
-	</DataURLList>
-	<MapURL>https://db9f583wfbsn9.cloudfront.net/construction_point.geojson</MapURL>
+	
+	<TimeZone state="WA" city="SEA"/>
+	<Processor>
+		<Requester>
+			<DataURLList>
+				<DataURL base="url1" method="get">
+					<MapURL>http://www/aaaaaaaa</MapURL>
+					<postparam>aaa aaa aaa</postparam>
+				</DataURL>
+				<MapURL>http://www/aaaaaaaa</MapURL>
+			</DataURLList>
+		</Requester>
+		<Extractor>
+			<patterntype>MAIN_ST_EXTRACT FROM_ST_EXTRACT TO_ST_EXTRACT</patterntype>
+		</Extractor>
+		<Formatter>
+			<patterntype>MAIN_ST_FORMAT FROM_ST_FORMAT TO_ST_FORMAT</patterntype>
+		</Formatter>
+		<Refiner>
+			<patterntype>MAIN_ST_FEFINE FROM_ST_FEFINE TO_ST_FEFINE</patterntype>
+		</Refiner>
+	</Processor>
+
 
 </Reader>
