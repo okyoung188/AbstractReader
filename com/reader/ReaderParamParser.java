@@ -3,6 +3,7 @@ package com.reader;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,20 +14,23 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.util.StringUtils;
+
 
 public class ReaderParamParser {
+
+	private Logger logger = Logger.getLogger(this.getClass());
+	
+	String defaultXmlPath = "prop/reader.xml";
 	
 	private AbstractReader abstractReader;
 	
-	private Logger logger = Logger.getLogger(this.getClass());
-
-    String defaultXmlPath = "prop/reader.xml";
-
 	Document document;
 
 	Map<String,Processor> processors;
@@ -88,85 +92,152 @@ public class ReaderParamParser {
         NodeList nodeList = rootElement.getChildNodes();
         for (int i=0;i<nodeList.getLength();i++){
         	Node node = nodeList.item(i);
-        	Element element = (Element) node;
-        	short nodeType = element.getNodeType(); 
-        	String nodeName = element.getNodeName();
-     		String value = element.getNodeValue();
+        	short nodeType = node.getNodeType(); 
         	if(nodeType == Node.ELEMENT_NODE){
-        		String defaultParamSetter = "set" + nodeName;
-        		Method defaultMethod = getMethod(defaultParamSetter,String.class);
-        		if(nodeName.equals(XmlFileProperty.CITY)){
-        			String name = element.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
-        			defaultMethod = getMethod(defaultParamSetter,String.class);	
-        			defaultMethod.invoke(abstractReader, name);
-        		} else if(nodeName.equals(XmlFileProperty.CITY_SET)){
-        			defaultMethod = getMethod(defaultParamSetter,Map.class);
-        			Map<String,List<?>> cityCountyMap = parseCitySet(element);
-        			defaultMethod.invoke(abstractReader, cityCountyMap);
-        		} else if(nodeName.equals(XmlFileProperty.STATES)){
-        			defaultMethod = getMethod(defaultParamSetter,Map.class);
-        			Map<String,List<?>> stateCityMap = parseStates(element);
-        			defaultMethod.invoke(abstractReader, stateCityMap);
-        		} else if(nodeName.equals(XmlFileProperty.CONNECT_TIME_OUT)){
-        			defaultMethod = getMethod(defaultParamSetter,Long.class);
-        			defaultMethod.invoke(abstractReader, Long.valueOf(value));
-        		} else if(nodeName.equals(XmlFileProperty.PROCESSOR)){
-        			defaultMethod = getMethod(defaultParamSetter,Map.class);//todo
-        			Map<String,List<?>> cityCountyMap = parseCitySet(element);
-        			defaultMethod.invoke(abstractReader, cityCountyMap);
-        		} else if(nodeName.equals(XmlFileProperty.RETRY_TIME_OUT)){
-        			defaultMethod = getMethod(defaultParamSetter,Long.class);
-        			defaultMethod.invoke(abstractReader, Long.valueOf(value));
-        		} else if(nodeName.equals(XmlFileProperty.REVERSE_GEOCODING_FLAG)){
-        			defaultMethod = getMethod(defaultParamSetter,Boolean.class);
-        			defaultMethod.invoke(abstractReader, Boolean.valueOf(value));
-        		} else if(nodeName.equals(XmlFileProperty.SLEEP_TIME_OUT)){
-        			defaultMethod = getMethod(defaultParamSetter,Long.class);
-        			defaultMethod.invoke(abstractReader, Long.valueOf(value));
-        		} else if(nodeName.equals(XmlFileProperty.STATE)){
-        			String name = element.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
-        			defaultMethod = getMethod(defaultParamSetter,String.class);
-        			defaultMethod.invoke(abstractReader, name);
-        		} else if(nodeName.equals(XmlFileProperty.TC_SEPARATE_SIGN)){
-        			defaultMethod = getMethod(defaultParamSetter,String.class);
-        			defaultMethod.invoke(abstractReader, value);
-        		}         		
-//        		else if(nodeName.equals(XmlFileProperty.DATA_URL)){
-//        			
-//        		} else if(nodeName.equals(XmlFileProperty.DATA_URL_LIST)){
-//        			
-//        		} else if(nodeName.equals(XmlFileProperty.EXTRACTER)){
-//        			
-//        		} else if(nodeName.equals(XmlFileProperty.FORMATTER)){
-//        			
-//        		} else if(nodeName.equals(XmlFileProperty.MAP_URL)){
-//        			
-//        		}  else if(nodeName.equals(XmlFileProperty.REFINER)){
-//        			
-//        		} else if(nodeName.equals(XmlFileProperty.REQUESTER)){
-//        			
-//        		} 
-   
-        		Field field = AbstractReader.class.getField(nodeName);
-        		if(field != null){
-        			field.set(abstractReader, value);// if error, determine the field type
-        		}
-        		
+//            		setByMethod(node);
+        			Element element = (Element) node;
+        			String nodeName = node.getNodeName();
+        			Object value = null;
+        			String methodName = null;
+        			Class<?> parameterTypes = null;
+        			if(nodeName.equals(XmlFileProperty.CITY)){
+        				value = element.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
+        				parameterTypes = String.class;
+        			} else if(nodeName.equals(XmlFileProperty.CITY_SET)){
+        				value = parseCitySet(element);
+        				parameterTypes = Map.class;
+        			} else if(nodeName.equals(XmlFileProperty.STATE)){
+        				value = element.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
+        				parameterTypes = String.class;
+        			} else if(nodeName.equals(XmlFileProperty.STATES)){
+        				value = parseStates(element);
+        				parameterTypes = Map.class;
+        			} else if(nodeName.equals(XmlFileProperty.CONNECT_TIME_OUT)){
+        			    value = new Long(getValueInChildTxNode(element));
+        			    parameterTypes = long.class;
+        			} else if(nodeName.equals(XmlFileProperty.SLEEP_TIME_OUT)){
+        				value = new Long(getValueInChildTxNode(element));
+        				parameterTypes = long.class;
+        			} else if(nodeName.equals(XmlFileProperty.RETRY_TIME_OUT)){
+        				value = new Long(getValueInChildTxNode(element));
+        				parameterTypes = long.class;
+        			} else if(nodeName.equals(XmlFileProperty.REVERSE_GEOCODING_FLAG)){
+        				value = getValueInChildTxNode(element);
+        				parameterTypes = String.class;
+        			} else if(nodeName.equals(XmlFileProperty.TC_SEPARATE_SIGN)){
+        				value = getValueInChildTxNode(element);
+        				parameterTypes = String.class;
+        			} else if(nodeName.equals(XmlFileProperty.PROCESSOR)){
+        		        
+        			}         		
+//        	            		else if(nodeName.equals(XmlFileProperty.DATA_URL)){
+//        	            			
+//        	            		} else if(nodeName.equals(XmlFileProperty.DATA_URL_LIST)){
+//        	            			
+//        	            		} else if(nodeName.equals(XmlFileProperty.EXTRACTER)){
+//        	            			
+//        	            		} else if(nodeName.equals(XmlFileProperty.FORMATTER)){
+//        	            			
+//        	            		} else if(nodeName.equals(XmlFileProperty.MAP_URL)){
+//        	            			
+//        	            		}  else if(nodeName.equals(XmlFileProperty.REFINER)){
+//        	            			
+//        	            		} else if(nodeName.equals(XmlFileProperty.REQUESTER)){
+//        	            			
+//        	            		} 
+        			
+        			  setByMethod(nodeName, value, methodName,parameterTypes);
         	} else{
-        		logger.info("Encounter not element: nodetype[" + nodeType + ", nodename[" + nodeName + "]");
+        		logger.info("Encounter not element: nodetype[" + nodeType + ", nodename[" + node.getNodeName() + "]");
         	}
+        }
+	}
+	
+	/**
+	 * Get the value placed at the child text node
+	 * @param ele Element instance
+	 */
+	public String getValueInChildTxNode(Element ele){
+		String value = null;
+		if(ele != null){
+			Node node = ele.getFirstChild();
+			if(isNodeType(node, Node.TEXT_NODE)){
+				value = node.getNodeValue();
+			} else {
+				logger.info("First child node of " + ele.getNodeName() + " isn't a text node.");
+			}
+		}
+		return value;
+	}
+	
+	/**
+	 * Determine whether the node is in the node type.
+	 * @param node
+	 * @param type
+	 * @return
+	 */
+	public boolean isNodeType(Node node, Short type){
+		boolean isEqual = false;
+		if(node != null && type != null){
+			if(node.getNodeType() == type){
+				isEqual = true;
+			}
+		}
+		return isEqual;
+	}
+
+	/**
+	 * Set field by reflect field
+	 * @param fieldName
+	 * @param value
+	 * @throws Exception
+	 */
+	public void setByField(String fieldName,Object value) throws Exception{
+        if(fieldName != null){
+        	Field field = getReader().getClass().getDeclaredField(fieldName);
+    		if(field != null){
+    			boolean accessible = field.isAccessible();
+        		field.setAccessible(true);
+    			field.set(abstractReader, value);
+    			// Return to initial state
+        		if(!accessible){
+        			field.setAccessible(false);
+        		} else {
+        			field.setAccessible(true);
+        		}
+    		}
+    		
+        } else {
+        	logger.info("FieldName is null.");
+        }		
+	}
+	
+	public void setByMethod(String nodeName,Object value,String methodName,Class... parameterTypes) throws Exception {
+		if(getReader() == null){
+			throw new Exception("Reader is not specified.");
+		}
+		Class<?> readerClass = getReader().getClass();
+		if(!StringUtils.hasText(nodeName)){
+			throw new Exception("Field to be set not specified. Please check.");
+		}
+		String defaultParamSetter = "set" + nodeName;
+		Method method = null;
+		if(StringUtils.hasText(methodName)){
+			defaultParamSetter = methodName.trim();
+		}
+		method = readerClass.getMethod(defaultParamSetter, parameterTypes);
+        if(method != null){
+        	method.invoke(getReader(),value);
+        } else{
+        	logger.warn("Cannot find method named as " + defaultParamSetter + "!");
         }
 	}
 
 	public static void main(String[] args) throws Exception {
+		PropertyConfigurator.configureAndWatch("AbstractReader/prop/log4j.properties", 60000);
 		ReaderParamParser parser = new ReaderParamParser();
-		parser.parseParam(new AbstractReader(){
-
-			@Override
-			public void parseDataSource() {
-				
-				
-			}});
+	    parser.parseParam((AbstractReader)Class.forName("ConcreteReader").newInstance());
+		System.out.println("Done.");
 	}
 	
 	/**
@@ -174,7 +245,7 @@ public class ReaderParamParser {
 	 * @param parent
 	 * @return
 	 */
-    public static Map<String,List<?>>	parseStates(Element parent){
+    public static Map<String,List<?>> parseStates(Element parent){
     	Map<String,List<?>> stateCityMap = null;
     	List<String> cityList =null;
 		if(parent != null){
@@ -251,12 +322,16 @@ public class ReaderParamParser {
 	
 
 	public Method getMethod(String methodName,Class<?>... parameterTypes) throws SecurityException, NoSuchMethodException{
-		if (getReader() != null){
-			Method method = getReader().getClass().getMethod(methodName, parameterTypes);	
-			return method;
-		} else {
-			logger.info("Reader is null, so cannot get method.");
-		}	
+		try {
+			if (getReader() != null){
+				Method method = getReader().getClass().getMethod(methodName, parameterTypes);	
+				return method;
+			} else {
+				logger.info("Reader is null, so cannot get method.");
+			}
+		} catch(Exception e){
+		    logger.info(e.getMessage());	
+		}			
 		return null;
 	}
 }

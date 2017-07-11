@@ -57,13 +57,13 @@ public abstract class AbstractReader {
 	private final String READER_ID = this.getClass().getName();
 
 	// sleep time, set default to 5 min, will load from property file
-	private int loopSleepTime = 5 * 60 * 1000;
+	private long sleepTimeOut = 5 * 60 * 1000;
 
 	// Retry wait time, set default to 2 minutes, will load from property file
-	private int retryWaitTime = 2 * 60 * 1000;
+	private long retryTimeOut = 2 * 60 * 1000;
 
 	// Connection time, set default to 2 minutes, will load from property file
-	private int connectOutTime = 2 * 60 * 1000;
+	private long connectTimeOut = 2 * 60 * 1000;
 	
 	// This value is added to the wait time each time an exception is caught in run()
 	private final int SEED = 60000;
@@ -83,52 +83,28 @@ public abstract class AbstractReader {
 	// City
 	private String Ctiy;	
 	
-	/**
-	 * Get the loop sleep time
-	 * @return loop sleep time
-	 */
-	public int getLoopSleepTime() {
-		return loopSleepTime;
+	public long getSleepTimeOut() {
+		return sleepTimeOut;
 	}
 
-	/**
-	 * Set the loop sleep time
-	 * @param loopSleepTime
-	 */
-	public void setLoopSleepTime(int loopSleepTime) {
-		this.loopSleepTime = loopSleepTime;
+	public void setSleepTimeOut(long sleepTimeOut) {
+		this.sleepTimeOut = sleepTimeOut;
 	}
 
-	/**
-	 * Get the retry wait time
-	 * @return the retry wait time
-	 */
-	public int getRetryWaitTime() {
-		return retryWaitTime;
+	public long getRetryTimeOut() {
+		return retryTimeOut;
 	}
 
-	/**
-	 * Set the retry wait time
-	 * @param retryWaitTime
-	 */
-	public void setRetryWaitTime(int retryWaitTime) {
-		this.retryWaitTime = retryWaitTime;
+	public void setRetryTimeOut(long retryTimeOut) {
+		this.retryTimeOut = retryTimeOut;
 	}
 
-	/**
-	 * Get the connect timeout
-	 * @return the connect timeout
-	 */
-	public int getConnectOutTime() {
-		return connectOutTime;
+	public long getConnectTimeOut() {
+		return connectTimeOut;
 	}
 
-	/**
-	 * Set the connect timeout
-	 * @param connectOutTime
-	 */
-	public void setConnectOutTime(int connectOutTime) {
-		this.connectOutTime = connectOutTime;
+	public void setConnectTimeOut(long connectTimeOut) {
+		this.connectTimeOut = connectTimeOut;
 	}
 
 	public boolean isReverseGeocoding() {
@@ -139,6 +115,14 @@ public abstract class AbstractReader {
 		this.reverseGeocodingFlag = isReverseGeocoding;
 	}
 	
+	public String getTcSeparateSign() {
+		return tcSeparateSign;
+	}
+
+	public void setTcSeparateSign(String tcSeparateSign) {
+		this.tcSeparateSign = tcSeparateSign;
+	}
+
 	public String getState() {
 		return State;
 	}
@@ -274,14 +258,14 @@ public abstract class AbstractReader {
 
 				// Update "last run" field in MySql table containing reader
 				// program IDs.
-				DBUtils.updateReaderLastRun(loopSleepTime, READER_TYPE);
+				DBUtils.updateReaderLastRun(sleepTimeOut, READER_TYPE);
 
 				// Geocoding
 				LOGGER.info("Starting GEOCoding process.");
 				MySqlGeocodingEngine geo = null;
 				geo = new MySqlGeocodingInitiater(Ctiy, READER_ID);
 				geo.initiateGeocoding();
-				sleepTime = loopSleepTime - (System.currentTimeMillis() - startTime);
+				sleepTime = sleepTimeOut - (System.currentTimeMillis() - startTime);
 				if (sleepTime < 0) {
 					sleepTime = 1000;
 				}
@@ -298,44 +282,44 @@ public abstract class AbstractReader {
 				Thread.sleep(sleepTime);
 				waitTime = 0;
 			} catch (NoRouteToHostException ex) {
-				LOGGER.warn("This machine's internet connection is unavailable, retrying in  " + retryWaitTime / 60000 + "  mins...");
+				LOGGER.warn("This machine's internet connection is unavailable, retrying in  " + retryTimeOut / 60000 + "  mins...");
 				try {
-					Thread.sleep(retryWaitTime);
+					Thread.sleep(retryTimeOut);
 				} catch (InterruptedException ex1) {
 					LOGGER.fatal("Thread was interrupted.");
 				}
 			} catch (ConnectException ex) {
-				LOGGER.warn("Connection to the sea website" + " feed was refused, retyring in " + retryWaitTime / 60000 + " mins...");
+				LOGGER.warn("Connection to the sea website" + " feed was refused, retyring in " + retryTimeOut / 60000 + " mins...");
 				try {
-					Thread.sleep(retryWaitTime);
+					Thread.sleep(retryTimeOut);
 				} catch (InterruptedException ex1) {
 					LOGGER.fatal("Thread was interrupted.");
 				}
 			} catch (SocketException ex) {
-				LOGGER.warn("Connection to the sea website" + " feed was refused, retyring in " + retryWaitTime / 60000 + " mins...");
+				LOGGER.warn("Connection to the sea website" + " feed was refused, retyring in " + retryTimeOut / 60000 + " mins...");
 				try {
-					Thread.sleep(retryWaitTime);
+					Thread.sleep(retryTimeOut);
 				} catch (InterruptedException ex1) {
 					LOGGER.fatal("Thread was interrupted.");
 				}
 			} catch (UnknownHostException ex) {
-				LOGGER.warn("Unkown host. Could not establish contact with the sea website, retrying in " + retryWaitTime / 60000 + " mins...");
+				LOGGER.warn("Unkown host. Could not establish contact with the sea website, retrying in " + retryTimeOut / 60000 + " mins...");
 				try {
-					Thread.sleep(retryWaitTime);
+					Thread.sleep(retryTimeOut);
 				} catch (InterruptedException ex1) {
 					LOGGER.fatal("Thread was interrupted.");
 				}
 			} catch (FileNotFoundException ex) {
-				LOGGER.warn("Could not retrieve Inc data, retrying in " + retryWaitTime / 60000 + " mins...");
+				LOGGER.warn("Could not retrieve Inc data, retrying in " + retryTimeOut / 60000 + " mins...");
 				try {
-					Thread.sleep(retryWaitTime);
+					Thread.sleep(retryTimeOut);
 				} catch (InterruptedException ex1) {
 					LOGGER.fatal("Thread was interrupted.");
 				}
 			} catch (IOException ex) {
-				LOGGER.warn(ex.getMessage() + ", retrying in " + retryWaitTime / 60000 + " mins...");
+				LOGGER.warn(ex.getMessage() + ", retrying in " + retryTimeOut / 60000 + " mins...");
 				try {
-					Thread.sleep(retryWaitTime);
+					Thread.sleep(retryTimeOut);
 				} catch (InterruptedException ex1) {
 					LOGGER.fatal("Thread was interrupted.");
 				}
