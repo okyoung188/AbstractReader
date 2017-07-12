@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -94,65 +95,143 @@ public class ReaderParamParser {
         	Node node = nodeList.item(i);
         	short nodeType = node.getNodeType(); 
         	if(nodeType == Node.ELEMENT_NODE){
-//            		setByMethod(node);
-        			Element element = (Element) node;
-        			String nodeName = node.getNodeName();
-        			Object value = null;
-        			String methodName = null;
-        			Class<?> parameterTypes = null;
-        			if(nodeName.equals(XmlFileProperty.CITY)){
-        				value = element.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
-        				parameterTypes = String.class;
-        			} else if(nodeName.equals(XmlFileProperty.CITY_SET)){
-        				value = parseCitySet(element);
-        				parameterTypes = Map.class;
-        			} else if(nodeName.equals(XmlFileProperty.STATE)){
-        				value = element.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
-        				parameterTypes = String.class;
-        			} else if(nodeName.equals(XmlFileProperty.STATES)){
-        				value = parseStates(element);
-        				parameterTypes = Map.class;
-        			} else if(nodeName.equals(XmlFileProperty.CONNECT_TIME_OUT)){
-        			    value = new Long(getValueInChildTxNode(element));
-        			    parameterTypes = long.class;
-        			} else if(nodeName.equals(XmlFileProperty.SLEEP_TIME_OUT)){
-        				value = new Long(getValueInChildTxNode(element));
-        				parameterTypes = long.class;
-        			} else if(nodeName.equals(XmlFileProperty.RETRY_TIME_OUT)){
-        				value = new Long(getValueInChildTxNode(element));
-        				parameterTypes = long.class;
-        			} else if(nodeName.equals(XmlFileProperty.REVERSE_GEOCODING_FLAG)){
-        				value = getValueInChildTxNode(element);
-        				parameterTypes = String.class;
-        			} else if(nodeName.equals(XmlFileProperty.TC_SEPARATE_SIGN)){
-        				value = getValueInChildTxNode(element);
-        				parameterTypes = String.class;
-        			} else if(nodeName.equals(XmlFileProperty.PROCESSOR)){
-        		        
-        			}         		
-//        	            		else if(nodeName.equals(XmlFileProperty.DATA_URL)){
-//        	            			
-//        	            		} else if(nodeName.equals(XmlFileProperty.DATA_URL_LIST)){
-//        	            			
-//        	            		} else if(nodeName.equals(XmlFileProperty.EXTRACTER)){
-//        	            			
-//        	            		} else if(nodeName.equals(XmlFileProperty.FORMATTER)){
-//        	            			
-//        	            		} else if(nodeName.equals(XmlFileProperty.MAP_URL)){
-//        	            			
-//        	            		}  else if(nodeName.equals(XmlFileProperty.REFINER)){
-//        	            			
-//        	            		} else if(nodeName.equals(XmlFileProperty.REQUESTER)){
-//        	            			
-//        	            		} 
-        			
-        			  setByMethod(nodeName, value, methodName,parameterTypes);
+				Element element = (Element) node;
+				String nodeName = node.getNodeName();
+				Object value = null;
+				String methodName = null;
+				Class<?> parameterTypes = null;
+				if (nodeName.equals(XmlFileProperty.CITY)) {
+					value = element.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
+					parameterTypes = String.class;
+				} else if (nodeName.equals(XmlFileProperty.CITYMAP)) {
+					value = parseCityMap(element);
+					parameterTypes = Map.class;
+				} else if (nodeName.equals(XmlFileProperty.STATE)) {
+					value = element.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
+					parameterTypes = String.class;
+				} else if (nodeName.equals(XmlFileProperty.STATEMAP)) {
+					value = parseStateMap(element);
+					parameterTypes = Map.class;
+				} else if (nodeName.equals(XmlFileProperty.CONNECT_TIME_OUT)) {
+					value = new Long(getValueInChildTxNode(element));
+					parameterTypes = long.class;
+				} else if (nodeName.equals(XmlFileProperty.SLEEP_TIME_OUT)) {
+					value = new Long(getValueInChildTxNode(element));
+					parameterTypes = long.class;
+				} else if (nodeName.equals(XmlFileProperty.RETRY_TIME_OUT)) {
+					value = new Long(getValueInChildTxNode(element));
+					parameterTypes = long.class;
+				} else if (nodeName.equals(XmlFileProperty.REVERSE_GEOCODING_FLAG)) {
+					value = new Boolean(getValueInChildTxNode(element));
+					parameterTypes = boolean.class;
+				} else if (nodeName.equals(XmlFileProperty.TC_SEPARATE_SIGN)) {
+					value = getValueInChildTxNode(element);
+					parameterTypes = String.class;
+				} else if (nodeName.equals(XmlFileProperty.DEFAULT_TIME_ZONE)){
+					String state = element.getAttribute(XmlFileProperty.ATTRIBUTE_STATE);
+					String city = element.getAttribute(XmlFileProperty.ATTRIBUTE_CITY);
+					if(state !=null && city != null){
+						List<String> timeZoneList = new ArrayList<String>();
+						timeZoneList.add(parseTimeZone(element));
+						value = timeZoneList;
+						methodName = "setTimeZones";
+						parameterTypes = List.class;	
+					} else {
+						throw new Exception("Invalid parameter of defaultTimeZone!");
+					}
+				} else if(nodeName.equals(XmlFileProperty.TIME_ZONES)){
+					value = parseTimeZones(element);
+					parameterTypes = List.class;
+				}
+				else if (nodeName.equals(XmlFileProperty.PROCESSOR)) {
+
+					
+				} else {
+					
+				}
+				// else if(nodeName.equals(XmlFileProperty.DATA_URL)){
+				//
+				// } else if(nodeName.equals(XmlFileProperty.DATA_URL_LIST)){
+				//
+				// } else if(nodeName.equals(XmlFileProperty.EXTRACTER)){
+				//
+				// } else if(nodeName.equals(XmlFileProperty.FORMATTER)){
+				//
+				// } else if(nodeName.equals(XmlFileProperty.MAP_URL)){
+				//
+				// } else if(nodeName.equals(XmlFileProperty.REFINER)){
+				//
+				// } else if(nodeName.equals(XmlFileProperty.REQUESTER)){
+				//
+				// }
+
+				setByMethod(nodeName, value, methodName, parameterTypes);
         	} else{
         		logger.info("Encounter not element: nodetype[" + nodeType + ", nodename[" + node.getNodeName() + "]");
         	}
         }
 	}
 	
+	private List<String> parseTimeZones(Element element) throws Exception {
+		List<String> timeZoneKeyList = null;
+		int defaultPosition = -1;
+		if(element != null){
+			NodeList nodeList = element.getChildNodes();
+			for (int i = 0;i< nodeList.getLength();i++){
+				Node node = nodeList.item(i);
+				if(isNodeType(node, Node.ELEMENT_NODE)){
+					if(isNodeName(node, XmlFileProperty.TIME_ZONE)){
+						String timeZoneKey = parseTimeZone((Element)node);
+						if(timeZoneKey != null){
+							if(timeZoneKeyList == null){
+								timeZoneKeyList = new ArrayList<String>();								
+							}
+							if(timeZoneKey.endsWith("default") && defaultPosition == -1){
+								defaultPosition = timeZoneKeyList.size();
+    						}
+							timeZoneKeyList.add(timeZoneKey);
+						}
+					}
+				}
+			}
+		}
+		if(timeZoneKeyList != null){
+			// exchange default item and first item
+			if(defaultPosition != -1){
+				String timeZone0 = timeZoneKeyList.get(0);
+				String timeZoneDefault = timeZoneKeyList.get(defaultPosition);
+				timeZoneKeyList.set(0, timeZoneDefault);
+				timeZoneKeyList.set(defaultPosition, timeZone0);
+			}
+		}
+		return timeZoneKeyList;
+	}
+	
+	/**
+	 * Parse timeZone element to string key
+	 * @param element
+	 * @return
+	 */
+	private String parseTimeZone(Element element) throws Exception{
+		if(element != null){
+			String state = element.getAttribute(XmlFileProperty.ATTRIBUTE_STATE);
+			String city = element.getAttribute(XmlFileProperty.ATTRIBUTE_CITY);
+			String defaultStr = element.getAttribute(XmlFileProperty.ATTRIBUTE_DEFAULT);
+			if(state != null && city != null){
+				StringBuffer buffer = new StringBuffer();
+				buffer.append(state);
+				buffer.append("_");
+				buffer.append(city);
+				if(defaultStr != null && defaultStr.equals("true")){
+					buffer.append("_");
+					buffer.append("default");
+				}
+				return buffer.toString();
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Get the value placed at the child text node
 	 * @param ele Element instance
@@ -180,6 +259,23 @@ public class ReaderParamParser {
 		boolean isEqual = false;
 		if(node != null && type != null){
 			if(node.getNodeType() == type){
+				isEqual = true;
+			}
+		}
+		return isEqual;
+	}
+	
+	/**
+	 * Determine whether the node's name equals the given name 
+	 * @param node
+	 * @param nodeName
+	 * @return
+	 */
+	public boolean isNodeName(Node node,String nodeName){
+		boolean isEqual = false;
+		if(node != null && nodeName != null){
+			String name = node.getNodeName();
+			if(name != null && name.equals(nodeName)){
 				isEqual = true;
 			}
 		}
@@ -245,25 +341,28 @@ public class ReaderParamParser {
 	 * @param parent
 	 * @return
 	 */
-    public static Map<String,List<?>> parseStates(Element parent){
+    private Map<String,List<?>> parseStateMap(Element parent){
     	Map<String,List<?>> stateCityMap = null;
     	List<String> cityList =null;
 		if(parent != null){
 		    NodeList stateList = parent.getChildNodes();
 		    stateCityMap= new HashMap<String,List<?>>();
 		    for (int index = 0; index < stateList.getLength();index++){
-		    	Element stateElmt = (Element) stateList.item(index);
-		    	String nodeName = stateElmt.getNodeName();
-		    	if(nodeName.equals(XmlFileProperty.STATE)){
-		    		String nameAttribute = stateElmt.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
-		    		NodeList cityNode = stateElmt.getElementsByTagName(XmlFileProperty.CITY);
-		    		if(cityNode != null){
-		    			Element cityElmt = (Element) cityNode.item(0);
-		    			String cityStr = cityElmt.getNodeValue();
-		    			cityList = parseList(cityStr);
-		    			stateCityMap.put(nameAttribute, cityList);
-		    		}
-		    	}		    	
+		    	Node node = stateList.item(index);
+		    	if(isNodeType(node,Node.ELEMENT_NODE)){
+		    		Element stateElmt = (Element) stateList.item(index);
+		    		String nodeName = stateElmt.getNodeName();
+		    		if(nodeName.equals(XmlFileProperty.STATE)){
+		    			String nameAttribute = stateElmt.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
+		    			NodeList cityNode = stateElmt.getElementsByTagName(XmlFileProperty.CITY);
+		    			if(cityNode != null){
+		    				Element cityElmt = (Element) cityNode.item(0);
+		    				String cityStr = getValueInChildTxNode(cityElmt);
+		    				cityList = parseList(cityStr);
+		    				stateCityMap.put(nameAttribute, cityList);
+		    			}
+		    		}		    		
+		    	}
 		    }
 		}
 		return stateCityMap;
@@ -274,25 +373,28 @@ public class ReaderParamParser {
      * @param parent
      * @return
      */
-    public static Map<String,List<?>>	parseCitySet(Element parent){
+    private Map<String,List<?>>	parseCityMap(Element parent){
     	Map<String,List<?>> cityCountyMap = null;
     	List<String> countyList =null;
 		if(parent != null){
 		    NodeList cityList = parent.getChildNodes();
 		    cityCountyMap= new HashMap<String,List<?>>();
 		    for (int index = 0; index < cityList.getLength();index++){
-		    	Element cityElmt = (Element) cityList.item(index);
-		    	String nodeName = cityElmt.getNodeName();
-		    	if(nodeName.equals(XmlFileProperty.CITY)){
-		    		String nameAttribute = cityElmt.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
-		    		NodeList countyNode = cityElmt.getElementsByTagName(XmlFileProperty.COUNTY);
-		    		if(countyNode != null){
-		    			Element countyElmt = (Element) countyNode.item(0);
-		    			String countyStr = countyElmt.getNodeValue();
-		    			countyList = parseList(countyStr);
-		    			cityCountyMap.put(nameAttribute, countyList);
-		    		}
-		    	}		    	
+                Node node = cityList.item(index);
+                if(isNodeType(node,Node.ELEMENT_NODE)){
+                	Element cityElmt = (Element) cityList.item(index);
+                	String nodeName = cityElmt.getNodeName();
+                	if(nodeName.equals(XmlFileProperty.CITY)){
+                		String nameAttribute = cityElmt.getAttribute(XmlFileProperty.ATTRIBUTE_NAME);
+                		NodeList countyNode = cityElmt.getElementsByTagName(XmlFileProperty.COUNTY);
+                		if(countyNode != null){
+                			Element countyElmt = (Element) countyNode.item(0);
+                			String countyStr = getValueInChildTxNode(countyElmt);
+                			countyList = parseList(countyStr);
+                			cityCountyMap.put(nameAttribute, countyList);
+                		}
+                	}
+                }
 		    }
 		}
 		return cityCountyMap;
@@ -303,7 +405,7 @@ public class ReaderParamParser {
 	 * @param listStr
 	 * @return
 	 */
-	public static List<String> parseList(String listStr){
+	public List<String> parseList(String listStr){
 		List<String> itemList = null;
 		if(listStr != null){
 			listStr = listStr.trim();

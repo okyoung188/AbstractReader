@@ -12,14 +12,14 @@
 				<element ref="tns:ReverseGeocodingFlag"></element>
 				<choice>
 				  <element ref="tns:City"></element>
-				  <element ref="tns:CitySet"></element>
+				  <element ref="tns:CityMap"></element>
 				</choice>
 				<choice>
 					<element ref="tns:State" minOccurs="0"></element>
-				    <element ref="tns:States"></element>
+				    <element ref="tns:StateMap"></element>
 				</choice>
 				<choice>
-				  <element ref="tns:TimeZone"></element>
+				  <element ref="tns:DefaultTimeZone"></element>
 				  <element ref="tns:TimeZones"></element>
 				</choice>
 				<element ref="tns:Processor"></element>
@@ -38,7 +38,7 @@
 	<element name="City">
 	    <complexType>
 	        <sequence minOccurs="0">
-	            <element name="county">
+	            <element name="County">
 	                <simpleType>
 	                    <list itemType="string"></list>
 	                </simpleType>
@@ -50,7 +50,7 @@
 	<element name="State">
 	   <complexType>
 	        <sequence minOccurs="0">
-	            <element name="city">
+	            <element name="City">
 	                <simpleType>
 	                    <list itemType="string"></list>
 	                </simpleType>
@@ -66,13 +66,19 @@
 	       <attribute name="default" type="boolean" use="optional"></attribute>
 	    </complexType>
 	</element>
+	<element name="DefaultTimeZone">
+		<complexType>
+			<attribute name="state" type="string" use="required"></attribute>
+			<attribute name="city" type="string" use="required"></attribute>
+		</complexType>
+	</element>
 	<element name="TimeZones">
 	 <complexType>
 	    <sequence minOccurs="1" maxOccurs="unbounded"><element name="TimeZone"></element></sequence>
 	 </complexType>
 	</element>
 	
-	<element name="CitySet">
+	<element name="CityMap">
 		<complexType>
 			<sequence minOccurs="1" maxOccurs="unbounded">
 				<element ref="tns:City"></element>
@@ -80,7 +86,7 @@
 		</complexType>
 	</element>
 	
-	<element name="States">
+	<element name="StateMap">
 		<complexType>
 			<sequence minOccurs="1" maxOccurs="unbounded">
 				<element ref="tns:State"></element>
@@ -92,7 +98,7 @@
    <!-- PROCESSOR -->
 	<complexType name="ProcessType">
 		<sequence>
-			<element name="patterntype">
+			<element name="PatternType">
 				<simpleType>
 					<list itemType="string"></list>
 				</simpleType>

@@ -81,7 +81,18 @@ public abstract class AbstractReader {
 	private String State;
 
 	// City
-	private String Ctiy;	
+	private String City;
+
+	// HashSet to store citys
+	private Map<String,List<String>> cityMap;
+	
+	private Map<String,List<String>> stateMap;
+	
+	private TimeZone defaultTimeZone;
+	
+	private Map<String,TimeZone> timeZoneMap;
+	
+	private List<String> timeZones;
 	
 	public long getSleepTimeOut() {
 		return sleepTimeOut;
@@ -107,14 +118,14 @@ public abstract class AbstractReader {
 		this.connectTimeOut = connectTimeOut;
 	}
 
-	public boolean isReverseGeocoding() {
+	public boolean isReverseGeocodingFlag() {
 		return reverseGeocodingFlag;
 	}
 
-	public void setReverseGeocoding(boolean isReverseGeocoding) {
-		this.reverseGeocodingFlag = isReverseGeocoding;
+	public void setReverseGeocodingFlag(boolean reverseGeocodingFlag) {
+		this.reverseGeocodingFlag = reverseGeocodingFlag;
 	}
-	
+
 	public String getTcSeparateSign() {
 		return tcSeparateSign;
 	}
@@ -131,20 +142,78 @@ public abstract class AbstractReader {
 		State = state;
 	}
 
-	public String getCtiy() {
-		return Ctiy;
+	public String getCity() {
+		return City;
 	}
 
-	public void setCtiy(String ctiy) {
-		Ctiy = ctiy;
+	public void setCity(String city) {
+		City = city;
 	}
 
+	public Map<String, List<String>> getCityMap() {
+		return cityMap;
+	}
 
+	public void setCityMap(Map<String, List<String>> cityMap) {
+		this.cityMap = cityMap;
+	}
 
+	public Map<String, List<String>> getStateMap() {
+		return stateMap;
+	}
 
-	// HashSet to store citys
-	private HashSet<String> citySet;
+	public void setStateMap(Map<String, List<String>> stateMap) {
+		this.stateMap = stateMap;
+	}
+
+	public List<String> getTimeZones() {
+		return timeZones;
+	}
+
+	public void setTimeZones(List<String> timeZones) {
+		this.timeZones = timeZones;
+	}
 	
+	/* ****************************************
+	 ******************Processor***************
+	 ******************************************/
+	Requester requester;
+	Formatter formatter;
+	Extracter extracter;
+	Map<String,Processor> processorMap;
+	
+	public Requester getRequester() {
+		return requester;
+	}
+
+	public void setRequester(Requester requester) {
+		this.requester = requester;
+	}
+
+	public Formatter getFormatter() {
+		return formatter;
+	}
+
+	public void setFormatter(Formatter formatter) {
+		this.formatter = formatter;
+	}
+
+	public Extracter getExtracter() {
+		return extracter;
+	}
+
+	public void setExtracter(Extracter extracter) {
+		this.extracter = extracter;
+	}
+
+	public Map<String, Processor> getProcessorMap() {
+		return processorMap;
+	}
+
+	public void setProcessorMap(Map<String, Processor> processorMap) {
+		this.processorMap = processorMap;
+	}
+
 	// county city map
 	private Map<String,String> countyCityMap;
 	
@@ -171,9 +240,6 @@ public abstract class AbstractReader {
 	private ArrayList<IncConRecord> con_list = null;
 	private ArrayList<IncConRecord> inc_list = null;
 	private ArrayList<IncConRecord> tta_list = null;	
-	
-	// Default Time Zone
-	private TimeZone defaultTimeZone = null;
 
 	// SimpleDateFormat to parse time
 	private static final SimpleDateFormat DEFAULT_TIME_FORMAT = new SimpleDateFormat(
@@ -182,10 +248,7 @@ public abstract class AbstractReader {
 	// HashMap to store error info
 	private HashMap<String, String> unknownErrorMap;
 	
-	Requester requester;
-	Formatter formatter;
-	Extracter extracter;
-	Map<String,Processor> processorMap;
+
 	ReaderParamParser parser;
 
 	public void setParser(ReaderParamParser parser) throws Exception{
@@ -206,7 +269,7 @@ public abstract class AbstractReader {
 		con_list = new ArrayList<IncConRecord>();
 		tta_list = new ArrayList<IncConRecord>();
 		DBConnector.getInstance().setReaderID(READER_ID);
-		defaultTimeZone = DBUtils.getTimeZone(Ctiy, State);
+		defaultTimeZone = DBUtils.getTimeZone(City, State);
 		LOGGER.info("InitVariable successfully!");
 	}
 
@@ -225,7 +288,6 @@ public abstract class AbstractReader {
             this.parser = new ReaderParamParser();
         }
         parser.parseParam(this);
-        processorMap = parser.getProcessors();
         
         Collection<Processor> processors = processorMap.values();
         for (Processor processor:processors){
@@ -263,7 +325,7 @@ public abstract class AbstractReader {
 				// Geocoding
 				LOGGER.info("Starting GEOCoding process.");
 				MySqlGeocodingEngine geo = null;
-				geo = new MySqlGeocodingInitiater(Ctiy, READER_ID);
+				geo = new MySqlGeocodingInitiater(City, READER_ID);
 				geo.initiateGeocoding();
 				sleepTime = sleepTimeOut - (System.currentTimeMillis() - startTime);
 				if (sleepTime < 0) {

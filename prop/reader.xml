@@ -5,31 +5,34 @@
 	<RetryTimeOut>120</RetryTimeOut>
 	<TcSeparateSign>TC_SEPARATE_SIGN</TcSeparateSign>
 	<ReverseGeocodingFlag>true</ReverseGeocodingFlag>
-	<CitySet>
+	<CityMap>
 		<City name="SEA">
-			<county>AAA AAA AAA</county>
+			<County>AAA AAA AAA</County>
 		</City>
 		<City name="SEA">
-			<county>AAA,AAA,AAA</county>
+			<County>AAA,AAA,AAA</County>
 		</City>
 		<City name="SEA">
-			<county>AAA AAA AAA</county>
+			<County>AAA AAA AAA</County>
 		</City>
-	</CitySet>
-	<States>
+	</CityMap>
+	<StateMap>
 		<State name="WA">
-		    <city>AAA AAA AAA</city>
+		    <City>AAA AAA AAA</City>
 		</State>
 		<State name="WA">
-		    <city>AAA AAA AAA</city>
+		    <City>AAA AAA AAA</City>
 		</State>
 		<State name="WA">
-		    <city>AAA AAA AAA</city>
+		    <City>AAA AAA AAA</City>
 		</State>
-	</States>
+	</StateMap>
 	
-	
-	<TimeZone state="WA" city="SEA"/>
+	<TimeZones>
+	    <TimeZone state="WA" city="SEA"/>
+	    <TimeZone state="WA" city="SEA"/>
+	    <TimeZone state="WA" city="SEA"/>
+	</TimeZones>
 	<Processor>
 		<Requester>
 			<DataURLList>
@@ -41,13 +44,13 @@
 			</DataURLList>
 		</Requester>
 		<Extractor>
-			<patterntype>MAIN_ST_EXTRACT FROM_ST_EXTRACT TO_ST_EXTRACT</patterntype>
+			<PatternType>MAIN_ST_EXTRACT FROM_ST_EXTRACT TO_ST_EXTRACT</PatternType>
 		</Extractor>
 		<Formatter>
-			<patterntype>MAIN_ST_FORMAT FROM_ST_FORMAT TO_ST_FORMAT</patterntype>
+			<PatternType>MAIN_ST_FORMAT FROM_ST_FORMAT TO_ST_FORMAT</PatternType>
 		</Formatter>
 		<Refiner>
-			<patterntype>MAIN_ST_FEFINE FROM_ST_FEFINE TO_ST_FEFINE</patterntype>
+			<PatternType>MAIN_ST_FEFINE FROM_ST_FEFINE TO_ST_FEFINE</PatternType>
 		</Refiner>
 	</Processor>
 
