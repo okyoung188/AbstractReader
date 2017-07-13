@@ -22,7 +22,7 @@
 				  <element ref="tns:DefaultTimeZone"></element>
 				  <element ref="tns:TimeZones"></element>
 				</choice>
-				<element ref="tns:Processor"></element>
+				<element ref="tns:Processors"></element>
 			</sequence>
 			<attribute name="name" type="string" use="required"></attribute>
 		</complexType>
@@ -93,26 +93,11 @@
 			</sequence>
 		</complexType>
 	</element>
-
-
-   <!-- PROCESSOR -->
-	<complexType name="ProcessType">
-		<sequence>
-			<element name="PatternType">
-				<simpleType>
-					<list itemType="string"></list>
-				</simpleType>
-			</element>
-		</sequence>
-		<attribute name="filepath" type="anyURI"></attribute>
-	</complexType>
-	<element name="Extractor" type="tns:ProcessType"></element>
-	<element name="Formatter" type="tns:ProcessType"></element>
-	<element name="Refiner" type="tns:ProcessType"></element>
 	
+	<!-- Requester -->
 	<element name="Requester" type="tns:RequestType"></element>
 	<complexType name="RequestType">
-		<choice>
+		<choice minOccurs="0" maxOccurs="1">
 			<element name="DataURLList">
 				<complexType>
 					<sequence>
@@ -120,29 +105,68 @@
 							<complexType>
 								<sequence>
 									<element ref="tns:MapURL"></element>
-									<element name="postparam" type="string"></element>
+									<element name="PostParam" type="string"></element>
+									<element name="RequestProperty">
+									   <complexType>
+									       <attribute name="key" type="string"></attribute>
+									   </complexType>
+									</element>
 								</sequence>
-								<attribute name="base" type="string"></attribute>
+								<attribute name="baseURL" type="string"></attribute>
+								<attribute name="url" type="string" use="required"></attribute>
 								<attribute name="method" type="string"></attribute>
 							</complexType>
 						</element>
-						<element ref="tns:MapURL"></element>
+						<element name="URL" minOccurs="0" maxOccurs="unbounded">
+						     <complexType>
+						         <attribute name="value" type="anyURI"></attribute>
+						         <attribute name="name" type="string"></attribute>						     
+						     </complexType>
+						</element>
 					</sequence>
 				</complexType>
 			</element>
 		</choice>
+		<attribute name="name" type="string"></attribute>
+		<attribute name="filepath" type="anyURI"></attribute>
+		<attribute name="class" type="string"></attribute>
+	</complexType>
+
+
+   <!-- PROCESSOR -->
+    <element name="Processors">
+	<complexType>
+		<sequence>
+		    <element ref="tns:Requester"></element>
+			<element ref="tns:Extractor" minOccurs="0"></element>
+			<element ref="tns:Formatter" minOccurs="0"></element>
+			<element ref="tns:Refiner" minOccurs="0"></element>
+			<element name="Processor" minOccurs="0" maxOccurs="unbounded">
+				<complexType>
+					<attribute name="name" type="string" use="required"></attribute>
+					<attribute name="filepath" type="anyURI" use="required"></attribute>
+					<attribute name="class" type="string" use="required"></attribute>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+	</element>
+	<element name="Extractor" type="tns:ProcessorType"></element>
+	<element name="Formatter" type="tns:ProcessorType"></element>
+	<element name="Refiner" type="tns:ProcessorType"></element>
+	<complexType name="ProcessorType">
+<!-- 		<sequence>
+			<element name="PatternType">
+				<simpleType>
+					<list itemType="string"></list>
+				</simpleType>
+			</element>
+		</sequence> -->
+		<attribute name="name" type="string"></attribute>
+		<attribute name="filepath" type="anyURI"></attribute>
+		<attribute name="class" type="string"></attribute>
 	</complexType>
 	
 	
-	<element name="Processor">
-		<complexType>
-			<all>
-			    <element ref="tns:Requester"></element>
-				<element ref="tns:Extractor"></element>
-				<element ref="tns:Formatter"></element>
-				<element ref="tns:Refiner"></element>
-			</all>
-		</complexType>
-	</element>
 
 </schema>

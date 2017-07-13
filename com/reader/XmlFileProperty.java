@@ -18,6 +18,7 @@ public class XmlFileProperty {
 	public static final String TIME_ZONES= "TimeZones";
 	public static final String TIME_ZONE= "TimeZone";
 	
+	public static final String PROCESSORS = "Processors";
 	public static final String PROCESSOR = "Processor";
 	public static final String EXTRACTER = "Extracter";
 	public static final String FORMATTER = "Formatter";

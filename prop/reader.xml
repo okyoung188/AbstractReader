@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Reader name="abstractReader" xmlns="http://www.example.org/AbstractReader/">
+    <!-- Field -->
 	<SleepTimeOut>180</SleepTimeOut>
 	<ConnectTimeOut>180</ConnectTimeOut>
 	<RetryTimeOut>120</RetryTimeOut>
 	<TcSeparateSign>TC_SEPARATE_SIGN</TcSeparateSign>
 	<ReverseGeocodingFlag>true</ReverseGeocodingFlag>
+	<!-- Map -->
 	<CityMap>
 		<City name="SEA">
 			<County>AAA AAA AAA</County>
@@ -27,32 +29,30 @@
 		    <City>AAA AAA AAA</City>
 		</State>
 	</StateMap>
-	
+	<!-- List or list of map-->
 	<TimeZones>
-	    <TimeZone state="WA" city="SEA"/>
+	    <TimeZone state="WA" city="SEA" default="true"/>
 	    <TimeZone state="WA" city="SEA"/>
 	    <TimeZone state="WA" city="SEA"/>
 	</TimeZones>
-	<Processor>
-		<Requester>
+	
+	<!-- List or List of map -->
+	<Processors>
+		<Requester name="" class="">
 			<DataURLList>
-				<DataURL base="url1" method="get">
+				<DataURL baseURL="aaaa" url="aaaa" method="get">
 					<MapURL>http://www/aaaaaaaa</MapURL>
-					<postparam>aaa aaa aaa</postparam>
+					<PostParam>aaaaaaaaa</PostParam>
+					<RequestProperty key="">aaaaaaaaaaaaaa</RequestProperty>
 				</DataURL>
-				<MapURL>http://www/aaaaaaaa</MapURL>
+				<URL name="aaaa" value="http://www/aaaaaaaa"/>
 			</DataURLList>
 		</Requester>
-		<Extractor>
-			<PatternType>MAIN_ST_EXTRACT FROM_ST_EXTRACT TO_ST_EXTRACT</PatternType>
-		</Extractor>
-		<Formatter>
-			<PatternType>MAIN_ST_FORMAT FROM_ST_FORMAT TO_ST_FORMAT</PatternType>
-		</Formatter>
-		<Refiner>
-			<PatternType>MAIN_ST_FEFINE FROM_ST_FEFINE TO_ST_FEFINE</PatternType>
-		</Refiner>
-	</Processor>
+		<Extractor name="" filepath="" class="" />
+		<Formatter />
+		<Refiner />
+		<Processor name="" filepath="" class="" />
+	</Processors>
 
 
 </Reader>

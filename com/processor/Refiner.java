@@ -1,8 +1,6 @@
-package com.requester;
+package com.processor;
 
-import com.reader.Processor;
-
-public class Requester extends Processor{
+public class Refiner extends Processor {
 
 	@Override
 	public boolean load() throws Exception {

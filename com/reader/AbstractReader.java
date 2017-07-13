@@ -32,9 +32,17 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.extracter.Extracter;
-import com.formatter.Formatter;
-import com.requester.Requester;
+
+
+
+
+
+
+import com.processor.Extracter;
+import com.processor.Formatter;
+import com.processor.Processor;
+import com.processor.Refiner;
+import com.processor.Requester;
 import com.trafficcast.base.dbutils.DBConnector;
 import com.trafficcast.base.dbutils.DBUtils;
 import com.trafficcast.base.enums.EventType;
@@ -177,10 +185,11 @@ public abstract class AbstractReader {
 	/* ****************************************
 	 ******************Processor***************
 	 ******************************************/
-	Requester requester;
-	Formatter formatter;
-	Extracter extracter;
-	Map<String,Processor> processorMap;
+	private Requester requester;
+	private Formatter formatter;
+	private Extracter extracter;
+	private Refiner refiner;
+	private Map<String,Processor> processorMap;
 	
 	public Requester getRequester() {
 		return requester;
@@ -205,7 +214,15 @@ public abstract class AbstractReader {
 	public void setExtracter(Extracter extracter) {
 		this.extracter = extracter;
 	}
+	
+	public Refiner getRefiner() {
+		return refiner;
+	}
 
+	public void setRefiner(Refiner refiner) {
+		this.refiner = refiner;
+	}
+	
 	public Map<String, Processor> getProcessorMap() {
 		return processorMap;
 	}

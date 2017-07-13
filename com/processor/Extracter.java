@@ -1,4 +1,4 @@
-package com.extracter;
+package com.processor;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -8,8 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import com.reader.Processor;
 
 
 public class Extracter extends Processor {

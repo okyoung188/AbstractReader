@@ -1,4 +1,4 @@
-package com.formatter;
+package com.processor;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.reader.Processor;
+
 
 
 public class Formatter extends Processor {

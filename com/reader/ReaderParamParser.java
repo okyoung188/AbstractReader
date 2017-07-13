@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.processor.Processor;
 import com.util.StringUtils;
 
 
@@ -142,34 +143,117 @@ public class ReaderParamParser {
 				} else if(nodeName.equals(XmlFileProperty.TIME_ZONES)){
 					value = parseTimeZones(element);
 					parameterTypes = List.class;
-				}
-				else if (nodeName.equals(XmlFileProperty.PROCESSOR)) {
-
-					
+				} else if (nodeName.equals(XmlFileProperty.PROCESSORS)) {
+                    value = parseProcessors(element);
+                    parameterTypes = Map.class;					
 				} else {
 					
 				}
-				// else if(nodeName.equals(XmlFileProperty.DATA_URL)){
-				//
-				// } else if(nodeName.equals(XmlFileProperty.DATA_URL_LIST)){
-				//
-				// } else if(nodeName.equals(XmlFileProperty.EXTRACTER)){
-				//
-				// } else if(nodeName.equals(XmlFileProperty.FORMATTER)){
-				//
-				// } else if(nodeName.equals(XmlFileProperty.MAP_URL)){
-				//
-				// } else if(nodeName.equals(XmlFileProperty.REFINER)){
-				//
-				// } else if(nodeName.equals(XmlFileProperty.REQUESTER)){
-				//
-				// }
-
 				setByMethod(nodeName, value, methodName, parameterTypes);
         	} else{
         		logger.info("Encounter not element: nodetype[" + nodeType + ", nodename[" + node.getNodeName() + "]");
         	}
         }
+	}
+
+	/**
+	 * Set field by reflect field
+	 * @param fieldName
+	 * @param value
+	 * @throws Exception
+	 */
+	public void setByField(String fieldName,Object value) throws Exception{
+        if(fieldName != null){
+        	Field field = getReader().getClass().getDeclaredField(fieldName);
+    		if(field != null){
+    			boolean accessible = field.isAccessible();
+        		field.setAccessible(true);
+    			field.set(abstractReader, value);
+    			// Return to initial state
+        		if(!accessible){
+        			field.setAccessible(false);
+        		} else {
+        			field.setAccessible(true);
+        		}
+    		}
+        } else {
+        	logger.info("FieldName is null.");
+        }		
+	}
+	
+	public void setByMethod(String nodeName,Object value,String methodName,Class<?>... parameterTypes) throws Exception {
+		if(getReader() == null){
+			throw new Exception("Reader is not specified.");
+		}
+		Class<?> readerClass = getReader().getClass();
+		if(!StringUtils.hasText(nodeName)){
+			throw new Exception("Field to be set not specified. Please check.");
+		}
+		String defaultParamSetter = "set" + nodeName;
+		Method method = null;
+		if(StringUtils.hasText(methodName)){
+			defaultParamSetter = methodName.trim();
+		}
+		method = readerClass.getMethod(defaultParamSetter, parameterTypes);
+        if(method != null){
+        	method.invoke(getReader(),value);
+        } else{
+        	logger.warn("Cannot find method named as " + defaultParamSetter + "!");
+        }
+	}
+
+	public static void main(String[] args) throws Exception {
+		PropertyConfigurator.configureAndWatch("AbstractReader/prop/log4j.properties", 60000);
+		ReaderParamParser parser = new ReaderParamParser();
+	    parser.parseParam((AbstractReader)Class.forName("ConcreteReader").newInstance());
+		System.out.println("Done.");
+	}
+	
+	/**
+	 * Determine whether the node is in the node type.
+	 * @param node
+	 * @param type
+	 * @return
+	 */
+	public boolean isNodeType(Node node, Short type){
+		boolean isEqual = false;
+		if(node != null && type != null){
+			if(node.getNodeType() == type){
+				isEqual = true;
+			}
+		}
+		return isEqual;
+	}
+	
+	/**
+	 * Determine whether the node's name equals the given name 
+	 * @param node
+	 * @param nodeName
+	 * @return
+	 */
+	public boolean isNodeName(Node node,String nodeName){
+		boolean isEqual = false;
+		if(node != null && nodeName != null){
+			String name = node.getNodeName();
+			if(name != null && name.equals(nodeName)){
+				isEqual = true;
+			}
+		}
+		return isEqual;
+	}
+	
+	public Method getMethod(String methodName,Class<?>... parameterTypes) throws SecurityException, NoSuchMethodException{
+		try {
+			if (getReader() != null){
+				Method method = getReader().getClass().getMethod(methodName, parameterTypes);	
+				return method;
+			} else {
+				logger.info("Reader is null, so cannot get method.");
+			}
+		} catch(Exception e){
+		    logger.info(e.getMessage());	
+		}			
+		return null;
 	}
 	
 	private List<String> parseTimeZones(Element element) throws Exception {
@@ -236,7 +320,7 @@ public class ReaderParamParser {
 	 * Get the value placed at the child text node
 	 * @param ele Element instance
 	 */
-	public String getValueInChildTxNode(Element ele){
+	private String getValueInChildTxNode(Element ele){
 		String value = null;
 		if(ele != null){
 			Node node = ele.getFirstChild();
@@ -247,93 +331,6 @@ public class ReaderParamParser {
 			}
 		}
 		return value;
-	}
-	
-	/**
-	 * Determine whether the node is in the node type.
-	 * @param node
-	 * @param type
-	 * @return
-	 */
-	public boolean isNodeType(Node node, Short type){
-		boolean isEqual = false;
-		if(node != null && type != null){
-			if(node.getNodeType() == type){
-				isEqual = true;
-			}
-		}
-		return isEqual;
-	}
-	
-	/**
-	 * Determine whether the node's name equals the given name 
-	 * @param node
-	 * @param nodeName
-	 * @return
-	 */
-	public boolean isNodeName(Node node,String nodeName){
-		boolean isEqual = false;
-		if(node != null && nodeName != null){
-			String name = node.getNodeName();
-			if(name != null && name.equals(nodeName)){
-				isEqual = true;
-			}
-		}
-		return isEqual;
-	}
-
-	/**
-	 * Set field by reflect field
-	 * @param fieldName
-	 * @param value
-	 * @throws Exception
-	 */
-	public void setByField(String fieldName,Object value) throws Exception{
-        if(fieldName != null){
-        	Field field = getReader().getClass().getDeclaredField(fieldName);
-    		if(field != null){
-    			boolean accessible = field.isAccessible();
-        		field.setAccessible(true);
-    			field.set(abstractReader, value);
-    			// Return to initial state
-        		if(!accessible){
-        			field.setAccessible(false);
-        		} else {
-        			field.setAccessible(true);
-        		}
-    		}
-    		
-        } else {
-        	logger.info("FieldName is null.");
-        }		
-	}
-	
-	public void setByMethod(String nodeName,Object value,String methodName,Class... parameterTypes) throws Exception {
-		if(getReader() == null){
-			throw new Exception("Reader is not specified.");
-		}
-		Class<?> readerClass = getReader().getClass();
-		if(!StringUtils.hasText(nodeName)){
-			throw new Exception("Field to be set not specified. Please check.");
-		}
-		String defaultParamSetter = "set" + nodeName;
-		Method method = null;
-		if(StringUtils.hasText(methodName)){
-			defaultParamSetter = methodName.trim();
-		}
-		method = readerClass.getMethod(defaultParamSetter, parameterTypes);
-        if(method != null){
-        	method.invoke(getReader(),value);
-        } else{
-        	logger.warn("Cannot find method named as " + defaultParamSetter + "!");
-        }
-	}
-
-	public static void main(String[] args) throws Exception {
-		PropertyConfigurator.configureAndWatch("AbstractReader/prop/log4j.properties", 60000);
-		ReaderParamParser parser = new ReaderParamParser();
-	    parser.parseParam((AbstractReader)Class.forName("ConcreteReader").newInstance());
-		System.out.println("Done.");
 	}
 	
 	/**
@@ -399,13 +396,87 @@ public class ReaderParamParser {
 		}
 		return cityCountyMap;
 	}
+    
+    /**
+     * Parse the processors
+     * @param element
+     * @return
+     * @throws Exception 
+     */
+    private Map<String,Processor> parseProcessors(Element element) throws Exception{
+    	Map<String,Processor> processorMap = null;
+    	if(element != null){
+    		NodeList nodes = element.getChildNodes();
+    		for (int i = 0; i< nodes.getLength();i++){
+    			Node node = nodes.item(i);
+    			if(isNodeType(node, Node.ELEMENT_NODE)){
+    				if(isNodeName(node, XmlFileProperty.REQUESTER)){
+    					ProcessorDefinition processorDef = parseProcessorDefinition(element);
+    					if(processorDef == null){
+    					   throw new Exception("Parse request definition error! Please check xml configuration.");
+    					}
+    					if(processorMap == null){
+    						processorMap = new HashMap<String,Processor>();
+    					}
+    				    Processor requester= parseProcessor(processorDef);
+    				    if(requester == null){
+    				    	throw new Exception("Requester is not properly configured, please check xml configuration.");
+    				    }
+    				    processorMap.put(processorDef.getName(), requester);
+    				} else if(isNodeName(node, XmlFileProperty.EXTRACTER) 
+    						|| isNodeName(node, XmlFileProperty.FORMATTER)
+    						|| isNodeName(node, XmlFileProperty.REFINER) 
+    						|| isNodeName(node, XmlFileProperty.PROCESSOR)) {
+    					ProcessorDefinition processorDef = parseProcessorDefinition(element);
+    					if(processorDef == null){
+    					   throw new Exception("Parse request definition error! Please check xml configuration.");
+    					}
+    					if(processorMap == null){
+    						processorMap = new HashMap<String,Processor>();
+    					}
+    					Processor processor= parseProcessor(processorDef);
+     				    if(processor == null){
+     				    	throw new Exception("Requester is not properly configured, please check xml configuration.");
+     				    }
+     				    processorMap.put(processorDef.getName(), processor);
+    				}
+    			}
+    		}
+    	}    	
+    	return null;
+    }
+    
+    /**
+     * Parse the processor
+     * @param element
+     */
+    private ProcessorDefinition parseProcessorDefinition(Element element){
+    	return null;
+    }
+    
+    /**
+     * Parse the requester
+     * @param element
+     */
+    private Processor parseRequester(Element element){
+    	if(isNodeName(element, XmlFileProperty.REQUESTER)){
+    		
+    	} else {
+    		
+    	}
+    	return null;
+    }
+    
+    private Processor parseProcessor(ProcessorDefinition processorDefinition){
+    	return null;
+    }
 	
 	/**
 	 * Parse the list element
 	 * @param listStr
 	 * @return
 	 */
-	public List<String> parseList(String listStr){
+	private List<String> parseList(String listStr){
 		List<String> itemList = null;
 		if(listStr != null){
 			listStr = listStr.trim();
@@ -422,18 +493,4 @@ public class ReaderParamParser {
 		return itemList;
 	}
 	
-
-	public Method getMethod(String methodName,Class<?>... parameterTypes) throws SecurityException, NoSuchMethodException{
-		try {
-			if (getReader() != null){
-				Method method = getReader().getClass().getMethod(methodName, parameterTypes);	
-				return method;
-			} else {
-				logger.info("Reader is null, so cannot get method.");
-			}
-		} catch(Exception e){
-		    logger.info(e.getMessage());	
-		}			
-		return null;
-	}
 }
