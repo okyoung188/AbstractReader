@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -282,5 +283,135 @@ public class Extracter extends Processor {
 			throw new Exception("Extracter's file path doesn't exist.");
 		}
 	}
+	
+	/**
+	 * Extract mainSt from the specific location info.
+	 * @param location
+	 * @return mainSt
+	 */
+	public String extractMainSt(String location){
+		Matcher matcher = null;
+		String mainSt = null;
+		if (location == null) {
+			LOGGER.debug("location is null, process mainSt returns null.");
+			return null;
+		}
+		if(mainStPatternArrayList != null && mainStPatternArrayList.size() > 0){
+			for (Pattern pattern : mainStPatternArrayList) {
+				matcher = pattern.matcher(location.trim());
+				if (matcher.matches()) {
+					mainSt = matcher.group(1);
+					if (mainSt != null && !mainSt.trim().equals("")) {
+						LOGGER.debug("MainSt: " + mainSt);
+						return mainSt.trim();
+					}
+					break;// only one pattern work
+				}
+			}
+			LOGGER.debug("location is invalid: " + location);
+		} else {
+			LOGGER.debug("MainStPattern is null.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Extract fromSt from location info
+	 * @param location
+	 * @return
+	 */
+	public String extractFromSt(String location){
+		Matcher matcher = null;
+		String fromSt = null;
+		if (location == null) {
+			LOGGER.info("location is null, process FromSt returns null.");
+			return null;
+		}
+		if (fromStPatternArrayList != null && fromStPatternArrayList.size() > 0) {
+			for (Pattern pattern : fromStPatternArrayList) {
+				matcher = pattern.matcher(location);
+				if (matcher.matches()) {
+					fromSt = matcher.group(1);
+					// if (pattern.toString().equals("(\\d+) .+")) {
+					// fromSt = "BLOCK " + fromSt;
+					// }
+					if (fromSt != null && !fromSt.trim().equals("")) {
+						LOGGER.debug("FromSt: " + fromSt);
+						return fromSt.trim();
+					}
+					break;// only one pattern work
+				}
+			}
+			LOGGER.debug("location is invalid: " + location);
+		} else {
+			LOGGER.debug("MainStPattern is null.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Extract toSt from location info
+	 * @param location
+	 * @return
+	 */
+	public String extractToSt(String location){
+		Matcher matcher = null;
+		String toSt = null;
+		if (location == null) {
+			LOGGER.info("location is null, process toSt returns null.");
+			return null;
+		}
+		if (toStPatternArrayList != null && toStPatternArrayList.size() > 0) {
+			for (Pattern pattern : toStPatternArrayList) {
+				matcher = pattern.matcher(location);
+				if (matcher.matches()) {
+					toSt = matcher.group(1);
+					if (toSt != null && !toSt.trim().equals("")) {
+						LOGGER.debug("toSt: " + toSt);
+						return toSt.trim();
+					}
+					break;// only one pattern work
+				}
+			}
+			LOGGER.debug("location is invalid: " + location);
+		} else {
+			LOGGER.debug("MainStPattern is null.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Extract info from sourceInfo using patternList
+	 * @param info raw info 
+	 * @param patternList pattern list used to extract info
+	 * @return
+	 */
+	public String extractInfo(String sourceInfo, List<Pattern> patternList){
+		Matcher matcher = null;
+		String targetInfo = null;
+		if (sourceInfo == null) {
+			LOGGER.info("SourceInfo is null, extract info returns null.");
+			return null;
+		}
+		if (patternList != null && patternList.size() > 0) {
+			for (Pattern pattern : patternList) {
+				matcher = pattern.matcher(sourceInfo);
+				if (matcher.matches()) {
+					targetInfo = matcher.group(1);
+					if (targetInfo != null && !targetInfo.trim().equals("")) {
+						LOGGER.debug("Extracted Info : " + targetInfo);
+						return targetInfo.trim();
+					}
+					break;// only one pattern work
+				}
+			}
+			LOGGER.debug("sourceInfo is invalid: " + sourceInfo);
+		} else {
+			LOGGER.debug("PatternList is null.");
+		}
+		return null;
+	}
+	
+	
 
 }

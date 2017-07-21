@@ -52,7 +52,7 @@ import com.trafficcast.base.inccon.IncConDBUtils;
 import com.trafficcast.base.inccon.IncConRecord;
 
 
-public abstract class AbstractReader {
+public abstract class AbstractReader extends ReaderParam{
 	// Current version of this class.
 	public static final double VERSION = 1.0;
 
@@ -64,230 +64,42 @@ public abstract class AbstractReader {
 	
 	private final String READER_ID = this.getClass().getName();
 
-	// sleep time, set default to 5 min, will load from property file
-	private long sleepTimeOut = 5 * 60 * 1000;
-
-	// Retry wait time, set default to 2 minutes, will load from property file
-	private long retryTimeOut = 2 * 60 * 1000;
-
-	// Connection time, set default to 2 minutes, will load from property file
-	private long connectTimeOut = 2 * 60 * 1000;
-	
-	// This value is added to the wait time each time an exception is caught in run()
-	private final int SEED = 60000;
-	
-	// TrafficCast Separate Sign
-	private String tcSeparateSign = "~TrafficCastSeparateSign~";
-	
-	// Reverse geocoding, default true
-	boolean reverseGeocodingFlag = true;
-
-	// Reverse geocoding value, default -2
-	private final int reverseGeocodingValue = -2;
-	
-	// State code
-	private String State;
-
-	// City
-	private String City;
-
-	// HashSet to store citys
-	private Map<String,List<String>> cityMap;
-	
-	private Map<String,List<String>> stateMap;
-	
-	private TimeZone defaultTimeZone;
-	
-	private Map<String,TimeZone> timeZoneMap;
-	
-	private List<String> timeZones;
-	
-	public long getSleepTimeOut() {
-		return sleepTimeOut;
-	}
-
-	public void setSleepTimeOut(long sleepTimeOut) {
-		this.sleepTimeOut = sleepTimeOut;
-	}
-
-	public long getRetryTimeOut() {
-		return retryTimeOut;
-	}
-
-	public void setRetryTimeOut(long retryTimeOut) {
-		this.retryTimeOut = retryTimeOut;
-	}
-
-	public long getConnectTimeOut() {
-		return connectTimeOut;
-	}
-
-	public void setConnectTimeOut(long connectTimeOut) {
-		this.connectTimeOut = connectTimeOut;
-	}
-
-	public boolean isReverseGeocodingFlag() {
-		return reverseGeocodingFlag;
-	}
-
-	public void setReverseGeocodingFlag(boolean reverseGeocodingFlag) {
-		this.reverseGeocodingFlag = reverseGeocodingFlag;
-	}
-
-	public String getTcSeparateSign() {
-		return tcSeparateSign;
-	}
-
-	public void setTcSeparateSign(String tcSeparateSign) {
-		this.tcSeparateSign = tcSeparateSign;
-	}
-
-	public String getState() {
-		return State;
-	}
-
-	public void setState(String state) {
-		State = state;
-	}
-
-	public String getCity() {
-		return City;
-	}
-
-	public void setCity(String city) {
-		City = city;
-	}
-
-	public Map<String, List<String>> getCityMap() {
-		return cityMap;
-	}
-
-	public void setCityMap(Map<String, List<String>> cityMap) {
-		this.cityMap = cityMap;
-	}
-
-	public Map<String, List<String>> getStateMap() {
-		return stateMap;
-	}
-
-	public void setStateMap(Map<String, List<String>> stateMap) {
-		this.stateMap = stateMap;
-	}
-
-	public List<String> getTimeZones() {
-		return timeZones;
-	}
-
-	public void setTimeZones(List<String> timeZones) {
-		this.timeZones = timeZones;
-	}
-	
-	/* ****************************************
-	 ******************Processor***************
-	 ******************************************/
-	private Requester requester;
-	private Formatter formatter;
-	private Extracter extracter;
-	private Refiner refiner;
-	private Map<String,Processor> processorMap;
-	
-	public Requester getRequester() {
-		return requester;
-	}
-
-	public void setRequester(Requester requester) {
-		this.requester = requester;
-	}
-
-	public Formatter getFormatter() {
-		return formatter;
-	}
-
-	public void setFormatter(Formatter formatter) {
-		this.formatter = formatter;
-	}
-
-	public Extracter getExtracter() {
-		return extracter;
-	}
-
-	public void setExtracter(Extracter extracter) {
-		this.extracter = extracter;
-	}
-	
-	public Refiner getRefiner() {
-		return refiner;
-	}
-
-	public void setRefiner(Refiner refiner) {
-		this.refiner = refiner;
-	}
-	
-	public Map<String, Processor> getProcessorMap() {
-		return processorMap;
-	}
-
-	public void setProcessorMap(Map<String, Processor> processorMap) {
-		this.processorMap = processorMap;
-	}
-
 	// county city map
 	private Map<String,String> countyCityMap;
 	
 	// List to store filter key word
 	private List<String> filterKWordList;
-
-	// Address to get json
-	private String[] dataURLs;
-	private String dataUrlForSave;
-	
-    private int urlSize;
-    private int finishedSize;
-	
-    public boolean isFinished(){
-    	return urlSize == finishedSize;
-    }
-	
-	/**
-	 * County city boundary map
-	 */
+		
+	// County city boundary map
 	private LinkedHashMap<String, String[]> cityBoundaryMap;
 	
 	// ArrayList to store record
 	private ArrayList<IncConRecord> con_list = null;
 	private ArrayList<IncConRecord> inc_list = null;
-	private ArrayList<IncConRecord> tta_list = null;	
+	private ArrayList<IncConRecord> tta_list = null;
 
 	// SimpleDateFormat to parse time
 	private static final SimpleDateFormat DEFAULT_TIME_FORMAT = new SimpleDateFormat(
 			"MM/dd/yyyy", Locale.US);
 	
-	// HashMap to store error info
-	private HashMap<String, String> unknownErrorMap;
+	private String ticketNumber = "#0000";
 	
+	private String lastBuilt = "01/01/1970";
 
-	ReaderParamParser parser;
+	public String getTicketNumber() {
+		return ticketNumber;
+	}
 
-	public void setParser(ReaderParamParser parser) throws Exception{
-		if (parser == null){
-			throw new Exception("No paramParser defined.");
-		}
-		this.parser = parser;
-	}	
-	
-	/**
-	 * Initialize instance level variables
-	 * 
-	 * @param None
-	 * @return None
-	 */
-	private void initVariables() throws Exception {
-		inc_list = new ArrayList<IncConRecord>();
-		con_list = new ArrayList<IncConRecord>();
-		tta_list = new ArrayList<IncConRecord>();
-		DBConnector.getInstance().setReaderID(READER_ID);
-		defaultTimeZone = DBUtils.getTimeZone(City, State);
-		LOGGER.info("InitVariable successfully!");
+	public void setTicketNumber(String ticketNumber) {
+		this.ticketNumber = ticketNumber;
+	}
+
+	public String getLastBuilt() {
+		return lastBuilt;
+	}
+
+	public void setLastBuilt(String lastBuilt) {
+		this.lastBuilt = lastBuilt;
 	}
 
 	/**
@@ -305,16 +117,6 @@ public abstract class AbstractReader {
             this.parser = new ReaderParamParser();
         }
         parser.parseParam(this);
-        
-        Collection<Processor> processors = processorMap.values();
-        for (Processor processor:processors){
-        	boolean result = processor.load();
-        	if (!result){
-        		LOGGER.fatal("Load properties failed ! Program will terminate.");
-        		throw new RuntimeException(); // main() will catch this exception.
-        	}
-        }
-        LOGGER.info("Load properties and initialize completed, next will enter while()");
 
 		initVariables();
 
@@ -354,7 +156,7 @@ public abstract class AbstractReader {
 				con_list.clear();
 				tta_list.clear();
 				System.gc();
-				LOGGER.info("Last built on 06/22/2017; Ticket Number: #8497");
+				LOGGER.info("Last built on " + lastBuilt + "; Ticket Number:"+ ticketNumber);
 				LOGGER.info("Sleeping for " + (sleepTime / 1000) + " seconds.");
 				System.out.println();
 				DBConnector.getInstance().disconnect();
@@ -419,9 +221,34 @@ public abstract class AbstractReader {
 		}// end of while
 
 	}
+	
+	/**
+	 * Initialize instance level variables
+	 * 
+	 * @param None
+	 * @return None
+	 */
+	private void initVariables() throws Exception {
+		Collection<Processor> processors = processorMap.values();
+		for (Processor processor : processors) {
+			boolean result = processor.load();
+			if (!result) {
+				LOGGER.fatal("Load properties failed ! Program will terminate.");
+				throw new RuntimeException(); // main() will catch this
+												// exception.
+			}
+		}
+		LOGGER.info("Load properties and initialize completed, next will enter while()");
+		inc_list = new ArrayList<IncConRecord>();
+		con_list = new ArrayList<IncConRecord>();
+		tta_list = new ArrayList<IncConRecord>();
+		DBConnector.getInstance().setReaderID(READER_ID);
+		defaultTimeZone = DBUtils.getTimeZone(City, State);
+		LOGGER.info("InitVariable successfully!");
+	}
 
 	private void readDataSource() {
-		Requester requester = (Requester) getProcessor("Requester");
+		Requester requester = getRequester();
 		Executor executor = Executors.newCachedThreadPool();
 		executor.execute(new Runnable(){
 			@Override
@@ -430,26 +257,9 @@ public abstract class AbstractReader {
 			}
 		});		
 	}
-	
-	private Processor getProcessor(String name) {
-		if(name != null && !name.trim().equals("")){
-			if(processorMap != null){
-				Processor processor = processorMap.get(name);
-				if(processor != null){
-					LOGGER.info("Find the processor named " + name);
-					return processor;
-				} else {
-					 LOGGER.info("Cannot find the processor named " + name);
-				}
-			}
-		} else {
-		    LOGGER.info("Name is empty or null.");
-		}
-		return null;
-	}
-
 
 	public abstract void parseDataSource();
+	
 
 	
 	

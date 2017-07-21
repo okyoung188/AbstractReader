@@ -2,8 +2,10 @@ package com.reader;
 
 public class XmlFileProperty {
 
+	/* ***************************
+	 * Node name
+	 *****************************/
 	public static final String READER_PARAM = "ReaderParam";
-
 	public static final String CONNECT_TIME_OUT = "ConnectTimeOut";
 	public static final String SLEEP_TIME_OUT = "SleepTimeOut";
 	public static final String RETRY_TIME_OUT = "RetryTimeOut";
@@ -17,7 +19,6 @@ public class XmlFileProperty {
 	public static final String DEFAULT_TIME_ZONE = "DefaultTimeZone";
 	public static final String TIME_ZONES= "TimeZones";
 	public static final String TIME_ZONE= "TimeZone";
-	
 	public static final String PROCESSORS = "Processors";
 	public static final String PROCESSOR = "Processor";
 	public static final String EXTRACTER = "Extracter";
@@ -28,11 +29,24 @@ public class XmlFileProperty {
 	public static final String DATA_URL = "DataURL";
 	public static final String MAP_URL = "MapURL";
 	
+	/* ****************************
+	 * Attribute name
+	 ******************************/
 	public static final String ATTRIBUTE_NAME="name";
 	public static final String ATTRIBUTE_STATE="state";
 	public static final String ATTRIBUTE_CITY="city";
 	public static final String ATTRIBUTE_DEFAULT="default";
+	
+	/* ****************************
+	 * Delimiter 
+	 ******************************/
 	public static final String LIST_SEPERATE = ",";
+	
+	/* ****************************
+	 * Set method of parsed properties
+	 ******************************/
+	public static final String SETMETHOD_PROCESSOR="setProcessors";
+	public static final String SETMETHOD_TIMEZONES="setTimeZones";
 	
 
 

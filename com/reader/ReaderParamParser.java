@@ -135,7 +135,7 @@ public class ReaderParamParser {
 						List<String> timeZoneList = new ArrayList<String>();
 						timeZoneList.add(parseTimeZone(element));
 						value = timeZoneList;
-						methodName = "setTimeZones";
+						methodName = XmlFileProperty.SETMETHOD_TIMEZONES;
 						parameterTypes = List.class;	
 					} else {
 						throw new Exception("Invalid parameter of defaultTimeZone!");
@@ -145,7 +145,7 @@ public class ReaderParamParser {
 					parameterTypes = List.class;
 				} else if (nodeName.equals(XmlFileProperty.PROCESSORS)) {
                     value = parseProcessors(element);
-                    parameterTypes = Map.class;					
+                    parameterTypes = Map.class;	
 				} else {
 					
 				}
