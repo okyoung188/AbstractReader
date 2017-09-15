@@ -1,4 +1,4 @@
-package com.processor;
+package com.trafficcast.reader.processor;
 import java.io.File;
 import java.util.Date;
 

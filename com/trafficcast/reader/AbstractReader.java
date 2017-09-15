@@ -1,4 +1,4 @@
-package com.reader;
+package com.trafficcast.reader;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,11 +38,8 @@ import org.apache.log4j.Logger;
 
 
 
-import com.processor.Extracter;
-import com.processor.Formatter;
-import com.processor.Processor;
-import com.processor.Refiner;
-import com.processor.Requester;
+
+
 import com.trafficcast.base.dbutils.DBConnector;
 import com.trafficcast.base.dbutils.DBUtils;
 import com.trafficcast.base.enums.EventType;
@@ -50,6 +47,12 @@ import com.trafficcast.base.geocoding.MySqlGeocodingEngine;
 import com.trafficcast.base.geocoding.MySqlGeocodingInitiater;
 import com.trafficcast.base.inccon.IncConDBUtils;
 import com.trafficcast.base.inccon.IncConRecord;
+import com.trafficcast.reader.parser.ReaderParamParser;
+import com.trafficcast.reader.processor.Extracter;
+import com.trafficcast.reader.processor.Formatter;
+import com.trafficcast.reader.processor.Processor;
+import com.trafficcast.reader.processor.Refiner;
+import com.trafficcast.reader.processor.Requester;
 
 /**
  * 

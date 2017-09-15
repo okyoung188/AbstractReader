@@ -1,6 +1,6 @@
-package com.reader;
+package com.trafficcast.reader.parser;
 
-public class XmlFileProperty {
+public class ReaderXmlFileProperty {
 
 	/* ***************************
 	 *Node name

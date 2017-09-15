@@ -1,4 +1,4 @@
-package com.processor;
+package com.trafficcast.reader.processor;
 
 public class Refiner extends Processor {
 

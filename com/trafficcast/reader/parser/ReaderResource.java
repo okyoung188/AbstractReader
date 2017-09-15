@@ -1,4 +1,4 @@
-package com.reader;
+package com.trafficcast.reader.parser;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+
+import com.trafficcast.reader.AbstractReader;
 
 public class ReaderResource {
 	

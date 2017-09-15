@@ -1,4 +1,4 @@
-package com.reader;
+package com.trafficcast.reader;
 
 import java.util.List;
 import java.util.Map;
@@ -6,11 +6,12 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
-import com.processor.Extracter;
-import com.processor.Formatter;
-import com.processor.Processor;
-import com.processor.Refiner;
-import com.processor.Requester;
+import com.trafficcast.reader.parser.XmlParamParser;
+import com.trafficcast.reader.processor.Extracter;
+import com.trafficcast.reader.processor.Formatter;
+import com.trafficcast.reader.processor.Processor;
+import com.trafficcast.reader.processor.Refiner;
+import com.trafficcast.reader.processor.Requester;
 
 /**
  * The intermittent class to receive parameters and dispatch parameters which
@@ -23,7 +24,7 @@ public class ReaderParam {
 	// log4j instance
 	public static final Logger LOGGER = Logger.getLogger(ReaderParam.class);
 
-	protected ReaderParamParser parser;
+	protected XmlParamParser parser;
 
 	// sleep time, set default to 5 min, will load from property file
 	protected long sleepTimeOut = 5 * 60 * 1000;
@@ -64,7 +65,7 @@ public class ReaderParam {
 
 	protected List<String> timeZones;
 
-	public void setParser(ReaderParamParser parser) throws Exception {
+	public void setParser(XmlParamParser parser) throws Exception {
 		if (parser == null) {
 			throw new Exception("No paramParser defined.");
 		}

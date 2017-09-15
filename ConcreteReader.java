@@ -2,8 +2,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.log4j.PropertyConfigurator;
 
-import com.reader.AbstractReader;
-import com.reader.ReaderParamParser;
+import com.trafficcast.reader.AbstractReader;
 
 
 public class ConcreteReader extends AbstractReader{
@@ -19,7 +18,7 @@ public class ConcreteReader extends AbstractReader{
 	public static void main(String[] args) throws Exception {
 		PropertyConfigurator.configureAndWatch("log4j.properties", 60000);
 		AbstractReader incCon = new ConcreteReader();
-		incCon.setParser(new ReaderParamParser());
+		incCon.setParser(new com.trafficcast.reader.parser.ReaderParamParser());
 		try {
 			incCon.run();
 		} catch (Exception ex) {

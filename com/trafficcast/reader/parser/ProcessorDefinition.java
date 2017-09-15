@@ -1,4 +1,4 @@
-package com.reader;
+package com.trafficcast.reader.parser;
 
 public class ProcessorDefinition {
 
