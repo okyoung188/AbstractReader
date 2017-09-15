@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -18,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -114,19 +116,19 @@ public class ReaderParamParser {
 					value = parseStateMap(element);
 					parameterTypes = Map.class;
 				} else if (nodeName.equals(XmlFileProperty.CONNECT_TIME_OUT)) {
-					value = new Long(getValueInChildTxNode(element));
+					value = new Long(parseValueInChildTextNode(element));
 					parameterTypes = long.class;
 				} else if (nodeName.equals(XmlFileProperty.SLEEP_TIME_OUT)) {
-					value = new Long(getValueInChildTxNode(element));
+					value = new Long(parseValueInChildTextNode(element));
 					parameterTypes = long.class;
 				} else if (nodeName.equals(XmlFileProperty.RETRY_TIME_OUT)) {
-					value = new Long(getValueInChildTxNode(element));
+					value = new Long(parseValueInChildTextNode(element));
 					parameterTypes = long.class;
 				} else if (nodeName.equals(XmlFileProperty.REVERSE_GEOCODING_FLAG)) {
-					value = new Boolean(getValueInChildTxNode(element));
+					value = new Boolean(parseValueInChildTextNode(element));
 					parameterTypes = boolean.class;
 				} else if (nodeName.equals(XmlFileProperty.TC_SEPARATE_SIGN)) {
-					value = getValueInChildTxNode(element);
+					value = parseValueInChildTextNode(element);
 					parameterTypes = String.class;
 				} else if (nodeName.equals(XmlFileProperty.DEFAULT_TIME_ZONE)){
 					String state = element.getAttribute(XmlFileProperty.ATTRIBUTE_STATE);
@@ -320,7 +322,7 @@ public class ReaderParamParser {
 	 * Get the value placed at the child text node
 	 * @param ele Element instance
 	 */
-	private String getValueInChildTxNode(Element ele){
+	private String parseValueInChildTextNode(Element ele){
 		String value = null;
 		if(ele != null){
 			Node node = ele.getFirstChild();
@@ -331,6 +333,114 @@ public class ReaderParamParser {
 			}
 		}
 		return value;
+	}
+	
+	/**
+	 * Parse attributes in the element with specific class
+	 * @param parent
+	 * @param clazz
+	 * @return
+	 * @throws Exception 
+	 */
+	private <T> T parseAttributesToObject(Element parent, Class<T> clazz,String...attrs) throws Exception{
+		if(clazz != null){
+		    Map<String,String> attrMap = parseValueInAttributes(parent, attrs);
+		    if(attrMap !=null){
+		    	T t = clazz.newInstance();
+		        Set<String> attrNames = attrMap.keySet();
+		        for(String name: attrNames){
+		        	Field field = null;
+		        	if((field = clazz.getDeclaredField(name)) !=null){
+		        		Class<?> fieldType = field.getType();
+		        		if(fieldType.equals(int.class)){
+		        			field.setInt(t, Integer.parseInt(attrMap.get(name)));
+		        		} else if(fieldType.equals(double.class)){
+		        			field.setDouble(t, Double.parseDouble(attrMap.get(name)));
+		        		} else if(fieldType.equals(float.class)){
+		        			field.setFloat(t, Float.parseFloat(attrMap.get(name)));
+		        		} else if(fieldType.equals(short.class)){
+		        			field.setShort(t, Short.parseShort(attrMap.get(name)));
+		        		} else if(fieldType.equals(byte.class)){
+		        			field.setByte(t, Byte.parseByte(attrMap.get(name)));
+		        		} else if(fieldType.equals(long.class)){
+		        			field.setLong(t, Long.parseLong(attrMap.get(name)));
+		        		} else if(fieldType.equals(char.class)){
+		        			field.setChar(t, attrMap.get(name).charAt(0));
+		        		} else if(fieldType.equals(boolean.class)){
+		        			field.setBoolean(t, Boolean.parseBoolean(attrMap.get(name)));
+		        		} else if(fieldType.equals(String.class)){
+		        			field.set(t, attrMap.get(name));
+		        		} else {
+		        			throw new Exception("FieldType and attribute are not matched exception.");
+		        		}
+		        	}
+		        }	    
+		    }		    
+		}
+		return null;
+	}
+		
+	private Map<String,String> parseValueInAttributes(Element ele,String... attrs){
+		Map<String,String> attrMap = null;		
+		if(ele != null){
+			String eleName = ele.getNodeName();
+			if(logger.isDebugEnabled()){
+				logger.debug("ParseValueInAttributes executing for element[ " + eleName+ "]");
+			}
+		     NamedNodeMap nnm = ele.getAttributes();
+		     int parsedSize = 0;
+             for(int i = 0; i< nnm.getLength();i++){
+            	 Node node = nnm.item(i);
+            	 String nName = node.getNodeName();
+            	 String nValue = node.getNodeValue();
+            	 if(StringUtils.hasText(nName) && StringUtils.hasText(nValue)){
+            		 if(validateAttr(nName, attrs)){
+                		 if(attrMap == null){
+                			 attrMap = new HashMap<String,String>();
+                		 }
+            			 attrMap.put(nName, nValue);
+            			 parsedSize++;
+            		 }
+            	 }
+             }
+             if(logger.isDebugEnabled()){
+ 				logger.debug("ParseValueInAttributes for element[" + eleName+ "], size: " + parsedSize);
+ 			 }
+             return attrMap;
+		}
+		return null;
+	}
+	
+	/**
+	 * Determine whether the attribute is valid
+	 * @param attrName   Name of the attribute
+	 * @param validNames if null, all attrName are valid
+	 * @return
+	 */
+	private boolean validateAttr(String attrName, String... validNames){
+		boolean isValid = false;
+		if(StringUtils.hasText(attrName)){
+			if(validNames != null){
+				for(String name:validNames){
+					if(StringUtils.hasText(name) && attrName.equals(name)){
+						isValid = true;
+					}
+				}				
+			} else {
+				isValid = true;
+			}
+		}
+		return isValid;
+	}
+	
+	/**
+	 * Parse sub element, maybe need recurse
+	 * @param parent
+	 * @param clazz
+	 * @return
+	 */
+	private <T> T parseSubElement(Element parent, Class<T> clazz){
+		return null;
 	}
 	
 	/**
@@ -354,7 +464,7 @@ public class ReaderParamParser {
 		    			NodeList cityNode = stateElmt.getElementsByTagName(XmlFileProperty.CITY);
 		    			if(cityNode != null){
 		    				Element cityElmt = (Element) cityNode.item(0);
-		    				String cityStr = getValueInChildTxNode(cityElmt);
+		    				String cityStr = parseValueInChildTextNode(cityElmt);
 		    				cityList = parseList(cityStr);
 		    				stateCityMap.put(nameAttribute, cityList);
 		    			}
@@ -386,7 +496,7 @@ public class ReaderParamParser {
                 		NodeList countyNode = cityElmt.getElementsByTagName(XmlFileProperty.COUNTY);
                 		if(countyNode != null){
                 			Element countyElmt = (Element) countyNode.item(0);
-                			String countyStr = getValueInChildTxNode(countyElmt);
+                			String countyStr = parseValueInChildTextNode(countyElmt);
                 			countyList = parseList(countyStr);
                 			cityCountyMap.put(nameAttribute, countyList);
                 		}

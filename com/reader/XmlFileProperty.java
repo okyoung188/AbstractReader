@@ -3,7 +3,7 @@ package com.reader;
 public class XmlFileProperty {
 
 	/* ***************************
-	 * Node name
+	 *Node name
 	 *****************************/
 	public static final String READER_PARAM = "ReaderParam";
 	public static final String CONNECT_TIME_OUT = "ConnectTimeOut";

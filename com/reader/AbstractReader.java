@@ -51,7 +51,11 @@ import com.trafficcast.base.geocoding.MySqlGeocodingInitiater;
 import com.trafficcast.base.inccon.IncConDBUtils;
 import com.trafficcast.base.inccon.IncConRecord;
 
-
+/**
+ * 
+ * @author harry
+ *
+ */
 public abstract class AbstractReader extends ReaderParam{
 	// Current version of this class.
 	public static final double VERSION = 1.0;
@@ -82,24 +86,24 @@ public abstract class AbstractReader extends ReaderParam{
 	private static final SimpleDateFormat DEFAULT_TIME_FORMAT = new SimpleDateFormat(
 			"MM/dd/yyyy", Locale.US);
 	
-	private String ticketNumber = "#0000";
+	private String lastTicketNumber = "#0000";
 	
-	private String lastBuilt = "01/01/1970";
+	private String lastBuiltDate = "01/01/1970";
 
 	public String getTicketNumber() {
-		return ticketNumber;
+		return lastTicketNumber;
 	}
 
 	public void setTicketNumber(String ticketNumber) {
-		this.ticketNumber = ticketNumber;
+		this.lastTicketNumber = ticketNumber;
 	}
 
 	public String getLastBuilt() {
-		return lastBuilt;
+		return lastBuiltDate;
 	}
 
 	public void setLastBuilt(String lastBuilt) {
-		this.lastBuilt = lastBuilt;
+		this.lastBuiltDate = lastBuilt;
 	}
 
 	/**
@@ -156,7 +160,7 @@ public abstract class AbstractReader extends ReaderParam{
 				con_list.clear();
 				tta_list.clear();
 				System.gc();
-				LOGGER.info("Last built on " + lastBuilt + "; Ticket Number:"+ ticketNumber);
+				LOGGER.info("Last built on " + lastBuiltDate + "; Ticket Number:"+ lastTicketNumber);
 				LOGGER.info("Sleeping for " + (sleepTime / 1000) + " seconds.");
 				System.out.println();
 				DBConnector.getInstance().disconnect();
