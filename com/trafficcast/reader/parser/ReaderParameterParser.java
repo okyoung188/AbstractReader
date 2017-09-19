@@ -1,22 +1,14 @@
 package com.trafficcast.reader.parser;
-
-
-import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -25,120 +17,109 @@ import org.w3c.dom.NodeList;
 
 import com.trafficcast.reader.AbstractReader;
 import com.trafficcast.reader.processor.Processor;
+import com.trafficcast.reader.resolver.ParameterResolver;
 import com.util.StringUtils;
 
 
-public class ReaderParamParser implements XmlParamParser {
+public class ReaderParameterParser extends ParameterParser implements XmlParser {
 
-	private Logger logger = Logger.getLogger(this.getClass());
+	Logger logger = Logger.getLogger(this.getClass());
 	
-	String defaultXmlPath = "prop/reader.xml";
+	private AbstractReader reader;
 	
-	private AbstractReader abstractReader;
+	private List<ParameterResolver> resolvers = new ArrayList<ParameterResolver>();	
 	
-	Document document;
-
-	Map<String,Processor> processors;
-
-	/* (non-Javadoc)
-	 * @see com.trafficcast.reader.parser.XmlParamParser#getDefaultXmlPath()
-	 */
-	@Override
-	public String getDefaultXmlPath() {
-		return defaultXmlPath;
+	private Map<String,Method> readerMethodMap;
+	
+	public ReaderParameterParser(AbstractReader reader) {
+		this.reader = reader;
+		extractReaderMethodMap();
+	}
+	
+	public List<ParameterResolver> getResolvers() {
+		return resolvers;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.trafficcast.reader.parser.XmlParamParser#setDefaultXmlPath(java.lang.String)
-	 */
-	@Override
-	public void setDefaultXmlPath(String defaultXmlPath) {
-		this.defaultXmlPath = defaultXmlPath;
+	public void setResolvers(List<ParameterResolver> resolvers) {
+		this.resolvers = resolvers;
 	}
-
-	public void setProcessors(Map<String,Processor> processors) {
-		this.processors = processors;
-	}
-
-	public Map<String,Processor> getProcessors() {
-		return processors;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.trafficcast.reader.parser.XmlParamParser#getDocument()
-	 */
-	@Override
-	public Document getDocument() {
-		return document;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.trafficcast.reader.parser.XmlParamParser#setDocument(org.w3c.dom.Document)
-	 */
-	@Override
-	public void setDocument(Document document) {
-		this.document = document;
-	}
-
-	public ReaderParamParser() {
-		super();
+	
+	public void addResovler(ParameterResolver resolver){
+		if(resolver !=null){
+			resolver.setReader(this.reader);
+			resolver.setReaderMethodMap(readerMethodMap);
+			resolvers.add(resolver);
+		}
 	}
 	
 	public AbstractReader getReader(){
-		return this.abstractReader;
+		return this.reader;
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.trafficcast.reader.parser.XmlParamParser#parseParam(com.trafficcast.reader.AbstractReader)
-	 */
-	@Override
-	public void parseParam(AbstractReader abstractReader) throws Exception {
-		if(abstractReader == null){
-			throw new Exception("Reader is null, cannot parse params.");
+	public void setReader(AbstractReader Reader) throws Exception{
+		this.reader = Reader;
+	}
+	
+	public Map<String, Method> getReaderMethodMap() {
+		return readerMethodMap;
+	}
+
+	public void setReaderMethodMap(Map<String, Method> readerMethodMap) {
+		this.readerMethodMap = readerMethodMap;
+	}
+	
+	public Map<String, Method> extractReaderMethodMap(){
+		Map<String, Method> extractedMap = null;
+		if (reader == null) {
+			logger.warn("Reader is not defined!");
+			return null;
 		}
-		this.abstractReader = abstractReader;
-		InputStream inStream = ClassLoader.getSystemResourceAsStream(defaultXmlPath);
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		document = builder.parse(inStream);
+		Method[] methods = reader.getClass().getMethods();
+		if (methods != null) {
+			for (Method method : methods) {
+				if (method != null) {
+					String methodName = method.getName();
+					if (extractedMap == null) {
+						extractedMap = new HashMap<String, Method>();
+					}
+					extractedMap.put(methodName, method);
+				}
+			}
+		}
+		readerMethodMap = extractedMap;
+		return extractedMap;
+	}
+	
+	@Override
+	public void parseParameters(Document document) throws Exception {
 		Element rootElement = document.getDocumentElement();
-        NodeList nodeList = rootElement.getChildNodes();
-        for (int i=0;i<nodeList.getLength();i++){
-        	Node node = nodeList.item(i);
-        	short nodeType = node.getNodeType(); 
-        	if(nodeType == Node.ELEMENT_NODE){
+	    NodeList nodeList = rootElement.getChildNodes();
+	    for (int i=0;i<nodeList.getLength();i++){
+	    	Node node = nodeList.item(i);
+	    	short nodeType = node.getNodeType(); 
+	    	if(nodeType == Node.ELEMENT_NODE){
 				Element element = (Element) node;
 				String nodeName = node.getNodeName();
 				Object value = null;
 				String methodName = null;
-				Class<?> parameterTypes = null;
 				if (nodeName.equals(ReaderXmlFileProperty.CITY)) {
 					value = element.getAttribute(ReaderXmlFileProperty.ATTRIBUTE_NAME);
-					parameterTypes = String.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.CITYMAP)) {
 					value = parseCityMap(element);
-					parameterTypes = Map.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.STATE)) {
 					value = element.getAttribute(ReaderXmlFileProperty.ATTRIBUTE_NAME);
-					parameterTypes = String.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.STATEMAP)) {
 					value = parseStateMap(element);
-					parameterTypes = Map.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.CONNECT_TIME_OUT)) {
 					value = new Long(parseValueInChildTextNode(element));
-					parameterTypes = long.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.SLEEP_TIME_OUT)) {
 					value = new Long(parseValueInChildTextNode(element));
-					parameterTypes = long.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.RETRY_TIME_OUT)) {
 					value = new Long(parseValueInChildTextNode(element));
-					parameterTypes = long.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.REVERSE_GEOCODING_FLAG)) {
 					value = new Boolean(parseValueInChildTextNode(element));
-					parameterTypes = boolean.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.TC_SEPARATE_SIGN)) {
 					value = parseValueInChildTextNode(element);
-					parameterTypes = String.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.DEFAULT_TIME_ZONE)){
 					String state = element.getAttribute(ReaderXmlFileProperty.ATTRIBUTE_STATE);
 					String city = element.getAttribute(ReaderXmlFileProperty.ATTRIBUTE_CITY);
@@ -147,26 +128,34 @@ public class ReaderParamParser implements XmlParamParser {
 						timeZoneList.add(parseTimeZone(element));
 						value = timeZoneList;
 						methodName = ReaderXmlFileProperty.SETMETHOD_TIMEZONES;
-						parameterTypes = List.class;	
 					} else {
 						throw new Exception("Invalid parameter of defaultTimeZone!");
 					}
 				} else if(nodeName.equals(ReaderXmlFileProperty.TIME_ZONES)){
 					value = parseTimeZones(element);
-					parameterTypes = List.class;
 				} else if (nodeName.equals(ReaderXmlFileProperty.PROCESSORS)) {
-                    value = parseProcessors(element);
-                    parameterTypes = Map.class;	
+	                value = parseProcessors(element);
 				} else {
-					
+					if(this.resolvers != null && this.resolvers.size() > 0){
+						for (ParameterResolver resolver:resolvers){
+							if(resolver.canResolve(nodeName)){
+								value = resolver.resolve(element);
+							} else {
+								continue;
+							}
+						}
+					}
 				}
-				setByMethod(nodeName, value, methodName, parameterTypes);
-        	} else{
-        		logger.info("Encounter not element: nodetype[" + nodeType + ", nodename[" + node.getNodeName() + "]");
-        	}
-        }
+				if(value == null){
+					throw new Exception("The node " + nodeName + " cannot be resolved, please check the configuration file and ParameterResolver object.");
+				}
+				setByMethod(nodeName, value, methodName, null);
+	    	} else{
+	    		logger.info("Encounter not element: nodetype[" + nodeType + ", nodename[" + node.getNodeName() + "]");
+	    	}
+	    }
 	}
-
+	
 	/**
 	 * Set field by reflect field
 	 * @param fieldName
@@ -179,7 +168,7 @@ public class ReaderParamParser implements XmlParamParser {
     		if(field != null){
     			boolean accessible = field.isAccessible();
         		field.setAccessible(true);
-    			field.set(abstractReader, value);
+    			field.set(reader, value);
     			// Return to initial state
         		if(!accessible){
         			field.setAccessible(false);
@@ -189,36 +178,42 @@ public class ReaderParamParser implements XmlParamParser {
     		}
         } else {
         	logger.info("FieldName is null.");
-        }		
+        }
 	}
 	
 	public void setByMethod(String nodeName,Object value,String methodName,Class<?>... parameterTypes) throws Exception {
 		if(getReader() == null){
 			throw new Exception("Reader is not specified.");
 		}
-		Class<?> readerClass = getReader().getClass();
+		
 		if(!StringUtils.hasText(nodeName)){
 			throw new Exception("Field to be set not specified. Please check.");
 		}
-		String defaultParamSetter = "set" + nodeName;
+		String paramSetter = "set" + nodeName;
 		Method method = null;
 		if(StringUtils.hasText(methodName)){
-			defaultParamSetter = methodName.trim();
+			paramSetter = methodName.trim();
 		}
-		method = readerClass.getMethod(defaultParamSetter, parameterTypes);
+		if(readerMethodMap != null && readerMethodMap.size() > 0){
+		    method = readerMethodMap.get(paramSetter);	
+		}
+		if(method == null){
+			Class<?> readerClass = getReader().getClass();
+			method = readerClass.getMethod(paramSetter, parameterTypes);
+		}
         if(method != null){
         	method.invoke(getReader(),value);
         } else{
-        	logger.warn("Cannot find method named as " + defaultParamSetter + "!");
+        	logger.warn("Cannot find method named as " + paramSetter + "!");
         }
 	}
 
-	public static void main(String[] args) throws Exception {
-		PropertyConfigurator.configureAndWatch("AbstractReader/prop/log4j.properties", 60000);
-		XmlParamParser parser = new ReaderParamParser();
-	    parser.parseParam((AbstractReader)Class.forName("ConcreteReader").newInstance());
-		System.out.println("Done.");
-	}
+//	public static void main(String[] args) throws Exception {
+//		PropertyConfigurator.configureAndWatch("AbstractReader/prop/log4j.properties", 60000);
+//		XmlParser parser = new ReaderParamParser();
+//	    parser.parseDocument();
+//		System.out.println("Done.");
+//	}
 	
 	/**
 	 * Determine whether the node is in the node type.
@@ -259,15 +254,15 @@ public class ReaderParamParser implements XmlParamParser {
 				Method method = getReader().getClass().getMethod(methodName, parameterTypes);	
 				return method;
 			} else {
-				logger.info("Reader is null, so cannot get method.");
+				logger.debug("The method [" + methodName + "] with method parameterTypes [" + Arrays.toString(parameterTypes) + "] doesn't exist.");
 			}
 		} catch(Exception e){
-		    logger.info(e.getMessage());	
+		    logger.debug(e.getMessage());	
 		}			
 		return null;
 	}
 	
-	private List<String> parseTimeZones(Element element) throws Exception {
+	List<String> parseTimeZones(Element element) throws Exception {
 		List<String> timeZoneKeyList = null;
 		int defaultPosition = -1;
 		if(element != null){
@@ -307,7 +302,7 @@ public class ReaderParamParser implements XmlParamParser {
 	 * @param element
 	 * @return
 	 */
-	private String parseTimeZone(Element element) throws Exception{
+	String parseTimeZone(Element element) throws Exception{
 		if(element != null){
 			String state = element.getAttribute(ReaderXmlFileProperty.ATTRIBUTE_STATE);
 			String city = element.getAttribute(ReaderXmlFileProperty.ATTRIBUTE_CITY);
@@ -331,7 +326,7 @@ public class ReaderParamParser implements XmlParamParser {
 	 * Get the value placed at the child text node
 	 * @param ele Element instance
 	 */
-	private String parseValueInChildTextNode(Element ele){
+	String parseValueInChildTextNode(Element ele){
 		String value = null;
 		if(ele != null){
 			Node node = ele.getFirstChild();
@@ -393,9 +388,9 @@ public class ReaderParamParser implements XmlParamParser {
 		Map<String,String> attrMap = null;		
 		if(ele != null){
 			String eleName = ele.getNodeName();
-			if(logger.isDebugEnabled()){
+			 if(logger.isDebugEnabled()){
 				logger.debug("ParseValueInAttributes executing for element[ " + eleName+ "]");
-			}
+			 }
 		     NamedNodeMap nnm = ele.getAttributes();
 		     int parsedSize = 0;
              for(int i = 0; i< nnm.getLength();i++){
@@ -434,7 +429,7 @@ public class ReaderParamParser implements XmlParamParser {
 					if(StringUtils.hasText(name) && attrName.equals(name)){
 						isValid = true;
 					}
-				}				
+				}
 			} else {
 				isValid = true;
 			}
@@ -457,7 +452,7 @@ public class ReaderParamParser implements XmlParamParser {
 	 * @param parent
 	 * @return
 	 */
-    private Map<String,List<?>> parseStateMap(Element parent){
+    Map<String,List<?>> parseStateMap(Element parent){
     	Map<String,List<?>> stateCityMap = null;
     	List<String> cityList =null;
 		if(parent != null){
@@ -489,7 +484,7 @@ public class ReaderParamParser implements XmlParamParser {
      * @param parent
      * @return
      */
-    private Map<String,List<?>>	parseCityMap(Element parent){
+    Map<String,List<?>>	parseCityMap(Element parent){
     	Map<String,List<?>> cityCountyMap = null;
     	List<String> countyList =null;
 		if(parent != null){
@@ -537,7 +532,7 @@ public class ReaderParamParser implements XmlParamParser {
     					if(processorMap == null){
     						processorMap = new HashMap<String,Processor>();
     					}
-    				    Processor requester= parseProcessor(processorDef);
+    				    Processor requester= getProcessor(processorDef);
     				    if(requester == null){
     				    	throw new Exception("Requester is not properly configured, please check xml configuration.");
     				    }
@@ -553,7 +548,7 @@ public class ReaderParamParser implements XmlParamParser {
     					if(processorMap == null){
     						processorMap = new HashMap<String,Processor>();
     					}
-    					Processor processor= parseProcessor(processorDef);
+    					Processor processor= getProcessor(processorDef);
      				    if(processor == null){
      				    	throw new Exception("Requester is not properly configured, please check xml configuration.");
      				    }
@@ -586,7 +581,7 @@ public class ReaderParamParser implements XmlParamParser {
     	return null;
     }
     
-    private Processor parseProcessor(ProcessorDefinition processorDefinition){
+    private Processor getProcessor(ProcessorDefinition processorDefinition){
     	return null;
     }
 	

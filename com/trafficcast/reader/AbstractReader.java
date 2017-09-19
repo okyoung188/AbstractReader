@@ -1,9 +1,5 @@
 package com.trafficcast.reader;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
@@ -12,10 +8,6 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -47,7 +39,7 @@ import com.trafficcast.base.geocoding.MySqlGeocodingEngine;
 import com.trafficcast.base.geocoding.MySqlGeocodingInitiater;
 import com.trafficcast.base.inccon.IncConDBUtils;
 import com.trafficcast.base.inccon.IncConRecord;
-import com.trafficcast.reader.parser.ReaderParamParser;
+import com.trafficcast.reader.parser.ReaderParameterParser;
 import com.trafficcast.reader.processor.Extracter;
 import com.trafficcast.reader.processor.Formatter;
 import com.trafficcast.reader.processor.Processor;
@@ -67,7 +59,7 @@ public abstract class AbstractReader extends ReaderParam{
 	private static final int READER_TYPE = 10;
 	
 	// log4j instance
-	public static final Logger LOGGER = Logger.getLogger(AbstractReader.class);
+	protected static final Logger LOGGER = Logger.getLogger(AbstractReader.class);
 	
 	private final String READER_ID = this.getClass().getName();
 
@@ -121,9 +113,10 @@ public abstract class AbstractReader extends ReaderParam{
 	public void run() throws Exception {
 		long startTime, sleepTime, waitTime = 0;
         if (parser == null){
-            this.parser = new ReaderParamParser();
+            this.parser = new ReaderParameterParser(this);
         }
-        parser.parseParam(this);
+        parser.setXmlPath("prop/reader.xml");
+        parser.parseDocument();
 
 		initVariables();
 

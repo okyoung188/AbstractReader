@@ -97,25 +97,31 @@
 	<!-- Requester -->
 	<element name="Requester" type="tns:RequesterType"></element>
 	<complexType name="RequesterType">
-		<choice minOccurs="1" maxOccurs="1">
-			<element name="URLList">
+		<choice minOccurs="0" maxOccurs="1">
+			<element name="DataURLList">
 				<complexType>
-					<sequence minOccurs="1" maxOccurs="unbounded">
-						<element name="URL">
+					<sequence>
+						<element name="DataURL">
 							<complexType>
 								<sequence>
-									<element name="DataURL" minOccurs="1" maxOccurs="unbounded">
+									<element ref="tns:MapURL"></element>
+									<element name="PostParam" type="string"></element>
+									<element name="RequestProperty">
 									   <complexType>
-									       <simpleContent>
-									         <extension base="anyURI">
-									            <attribute name="crawlMethod" type="string" use="required"/>
-									         </extension>									          
-									       </simpleContent>							       
-									   </complexType>									
+									       <attribute name="key" type="string"></attribute>
+									   </complexType>
 									</element>
-									<element name="MapURL" minOccurs="1" maxOccurs="1" type="anyURI"></element>
 								</sequence>
+								<attribute name="baseURL" type="string"></attribute>
+								<attribute name="url" type="string" use="required"></attribute>
+								<attribute name="method" type="string"></attribute>
 							</complexType>
+						</element>
+						<element name="URL" minOccurs="0" maxOccurs="unbounded">
+						     <complexType>
+						         <attribute name="value" type="anyURI"></attribute>
+						         <attribute name="name" type="string"></attribute>						     
+						     </complexType>
 						</element>
 					</sequence>
 				</complexType>

@@ -6,7 +6,7 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
-import com.trafficcast.reader.parser.XmlParamParser;
+import com.trafficcast.reader.parser.XmlParser;
 import com.trafficcast.reader.processor.Extracter;
 import com.trafficcast.reader.processor.Formatter;
 import com.trafficcast.reader.processor.Processor;
@@ -24,7 +24,7 @@ public class ReaderParam {
 	// log4j instance
 	public static final Logger LOGGER = Logger.getLogger(ReaderParam.class);
 
-	protected XmlParamParser parser;
+	protected XmlParser parser;
 
 	// sleep time, set default to 5 min, will load from property file
 	protected long sleepTimeOut = 5 * 60 * 1000;
@@ -65,7 +65,7 @@ public class ReaderParam {
 
 	protected List<String> timeZones;
 
-	public void setParser(XmlParamParser parser) throws Exception {
+	public void setParser(XmlParser parser) throws Exception {
 		if (parser == null) {
 			throw new Exception("No paramParser defined.");
 		}

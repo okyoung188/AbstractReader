@@ -38,17 +38,20 @@
 	
 	<!-- List or List of map -->
 	<Processors>
-		<Requester name="" class="">
-			<DataURLList>
-				<DataURL baseURL="aaaa" url="aaaa" method="get">
-					<MapURL>http://www/aaaaaaaa</MapURL>
-					<PostParam>aaaaaaaaa</PostParam>
-					<RequestProperty key="">aaaaaaaaaaaaaa</RequestProperty>
-				</DataURL>
-				<URL name="aaaa" value="http://www/aaaaaaaa"/>
-			</DataURLList>
+		<Requester>
+			<URLList>
+               <URL>
+                   <DataURL crawlMethod="readTNT">https://www1.toronto.ca/wps/portal/contentonly?vgnextoid=83f6e69ae554e410VgnVCM10000071d60f89RCRD</DataURL>
+                   <MapURL>https://www1.toronto.ca/wps/portal/contentonly?vgnextoid=83f6e69ae554e410VgnVCM10000071d60f89RCRD</MapURL>
+               </URL>
+               <URL>
+                   <DataURL crawlMethod="readTNT2">https://www1.toronto.ca/wps/portal/contentonly?vgnextoid=83f6e69ae554e410VgnVCM10000071d60f89RCRD</DataURL>
+                   <DataURL crawlMethod="readTNT3">https://www1.toronto.ca/wps/portal/contentonly?vgnextoid=83f6e69ae554e410VgnVCM10000071d60f89RCRD</DataURL>
+                   <MapURL>https://www1.toronto.ca/wps/portal/contentonly?vgnextoid=83f6e69ae554e410VgnVCM10000071d60f89RCRD</MapURL>
+               </URL>
+			</URLList>
 		</Requester>
-		<Extractor name="" filepath="" class="" />
+		<Extractor name="" filepath="" />
 		<Formatter />
 		<Refiner />
 		<Processor name="" filepath="" class="" />

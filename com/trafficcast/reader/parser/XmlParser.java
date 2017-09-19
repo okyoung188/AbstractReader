@@ -4,19 +4,19 @@ import org.w3c.dom.Document;
 
 import com.trafficcast.reader.AbstractReader;
 
-public interface XmlParamParser {
+public interface XmlParser {
 
 	/**
 	 * Get the reader xml default path
 	 * @return default reader xml path
 	 */
-	public abstract String getDefaultXmlPath();
+	public abstract String getXmlPath();
 
 	/**
 	 * Set the reader xml path
-	 * @param defaultXmlPath default reader xml path
+	 * @param xmlPath default reader xml path
 	 */
-	public abstract void setDefaultXmlPath(String defaultXmlPath);
+	public abstract void setXmlPath(String xmlPath);
 
 	public abstract Document getDocument();
 
@@ -26,6 +26,6 @@ public interface XmlParamParser {
 	 * Parse reader xml configuration file
 	 * @throws Exception
 	 */
-	public abstract void parseParam(AbstractReader abstractReader) throws Exception;
+	public abstract void parseDocument() throws Exception;
 
 }
