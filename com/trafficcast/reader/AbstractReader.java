@@ -70,7 +70,9 @@ public abstract class AbstractReader extends ReaderParam{
 	private List<String> filterKWordList;
 		
 	// County city boundary map
-	private LinkedHashMap<String, String[]> cityBoundaryMap;
+	private LinkedHashMap<String, String[]> cityBoundaryMap;	
+	
+	private Map<String,Map<String,String>> urlMap;
 	
 	// ArrayList to store record
 	private ArrayList<IncConRecord> con_list = null;
@@ -100,6 +102,7 @@ public abstract class AbstractReader extends ReaderParam{
 	public void setLastBuilt(String lastBuilt) {
 		this.lastBuiltDate = lastBuilt;
 	}
+	
 
 	/**
 	 * Read from website, parse html, analyze record, save to database,
@@ -255,10 +258,12 @@ public abstract class AbstractReader extends ReaderParam{
 			public void run() {
 				parseDataSource();
 			}
-		});		
+		});
 	}
+	
+	
 
-	public abstract void parseDataSource();
+	public abstract void parseDataSource(String name,String dataUrl,String mapUrl);
 	
 
 	
